@@ -1165,10 +1165,20 @@ body.ready .jun-text-button {
     letter-spacing: 2px;
   }
 
-  /* Hide edge texts on mobile to remove edge text for mobile version */
+  /* Show edge texts on mobile; hide only for the END section (body.month-end) */
   .edge-text,
   .left-edge,
   .right-edge {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: none !important;
+  }
+
+  /* Explicitly hide edge texts when the end page is active */
+  body.month-end .edge-text,
+  body.month-end .left-edge,
+  body.month-end .right-edge {
     display: none !important;
     visibility: hidden !important;
     pointer-events: none !important;
