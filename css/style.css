@@ -541,6 +541,16 @@ body.ready .insta-icon {
   display: none;
 }
 
+/* When the page is ready, allow interaction with the indulge wrapper/button */
+body.ready .indulge-wrap {
+  pointer-events: auto;
+}
+
+body.ready .indulge-wrap .indulge-btn {
+  display: block;
+  pointer-events: auto;
+}
+
 @media screen and (max-width: 768px) {
   .indulge-wrap {
     width: 160px;
