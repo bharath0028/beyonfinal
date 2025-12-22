@@ -92,6 +92,32 @@ document.addEventListener('DOMContentLoaded', () => {
   attachSwiperScrollHandler();
 });
 
+// Android fallback: some Android browsers block autoplay or video loading
+// which can leave the loading overlay visible and prevent interaction.
+// If loading doesn't clear within a short timeout, force the page ready state.
+(function androidLoadingFallback() {
+  function isAndroid() {
+    return /Android/i.test(navigator.userAgent || '');
+  }
+
+  if (!isAndroid()) return;
+
+  // Wait a bit for normal loading flow, then fallback
+  setTimeout(function() {
+    try {
+      var loader = document.querySelector('.loading');
+      if (!loader) return;
+      // If loading overlay is still present and body isn't ready, trigger ready
+      var isHidden = loader.style.display === 'none' || loader.style.visibility === 'hidden' || loader.style.opacity === '0';
+      if (!document.body.classList.contains('ready') && !isHidden) {
+        try { window.handleGoBeyond && window.handleGoBeyond(); } catch (e) {}
+        // also hide loader element as a fallback
+        try { loader.style.display = 'none'; loader.style.visibility = 'hidden'; loader.style.opacity = '0'; } catch (e) {}
+      }
+    } catch (e) {}
+  }, 1800);
+})();
+
 // When the user scrolls (wheel) over the cuts/swiper area, scroll the page
 function attachSwiperScrollHandler() {
   const container = document.querySelector('.cuts-swiper') || document.querySelector('.swiper-wrapper');

@@ -281,7 +281,7 @@ body.ready .insta-icon {
   left: 50%;
   transform: translate(-50%, -50%);
   width: var(--icon-size, 42px);
-  max-width: 18vw;
+  max-width: 8vw;
   height: auto;
   pointer-events: auto;
   cursor: pointer;
