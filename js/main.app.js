@@ -368,7 +368,14 @@
                                     o.assetList[e].forEach(function(t) {
                                         if (~t.indexOf(".mp4")) {
                                             var i = document.createElement("video");
-                                            i.style = "position:absolute;height:0", i.muted = !0, i.autoplay = !1, i.loop = !0, i.crossOrigin = "anonymous", i.setAttribute("muted", !0), i.setAttribute("webkit-playsinline", !0), i.setAttribute("playsinline", !0), i.preload = "metadata", i.src = "assets/".concat(e, "/").concat(t), document.body.appendChild(i), i.load(), n.push(new Promise(function(n) {
+                                            i.style = "position:absolute;height:0", i.muted = !0, i.autoplay = !1, i.loop = !0, i.crossOrigin = "anonymous", i.setAttribute("muted", !0), i.setAttribute("webkit-playsinline", !0), i.setAttribute("playsinline", !0), i.preload = "metadata", i.src = "assets/".concat(e, "/").concat(t);
+                                            document.body.appendChild(i);
+                                            // keep pending mobile videos so we can attempt playback on first user gesture
+                                            try {
+                                                window._beyonPendingVideos = window._beyonPendingVideos || [];
+                                                window._beyonPendingVideos.push(i);
+                                            } catch (err) {}
+                                            i.load(), n.push(new Promise(function(n) {
                                                 o.videoPromise(i, e, t, n)
                                             }))
                                         } else n.push(new Promise(function(i) {
@@ -446,9 +453,43 @@
                         key: "createVideoTexture",
                         value: function(e, t, o, i) {
                             var n = new ee.a(e);
-                            n.minFilter = n.magFilter = te.M, n.name = "".concat(t, "/").concat(o), n.mediaType = "video", n.anisotropy = this.renderer.capabilities.getMaxAnisotropy(), i ? (n.size = new Y.a(n.image.videoWidth / 2, n.image.videoHeight / 2), this.renderer.setTexture2D(n, 0), this.isMobile ? (e.src = "", e.load(), e.onloadeddata = null) : e.oncanplaythrough = null, i(n)) : (n.size = new Y.a(1, 1), e.oncanplaythrough = function() {
-                                n.size = new Y.a(n.image.videoWidth / 2, n.image.videoHeight / 2), n.needsUpdate = !0, e.oncanplaythrough = null
-                            }), this.assets.textures[t] || (this.assets.textures[t] = {}), this.assets.textures[t][o] = n
+                            n.minFilter = n.magFilter = te.M, n.name = "".concat(t, "/").concat(o), n.mediaType = "video", n.anisotropy = this.renderer.capabilities.getMaxAnisotropy();
+                            if (i) {
+                                n.size = new Y.a(n.image.videoWidth / 2, n.image.videoHeight / 2);
+                                this.renderer.setTexture2D(n, 0);
+                                // Keep the video `src` intact on mobile so we can start playback on a user gesture.
+                                // Clearing `src` here prevented pending mobile videos from ever playing.
+                                if (!this.isMobile) {
+                                    e.oncanplaythrough = null;
+                                } else {
+                                    // On mobile leave handlers as-is; the touch handler will call play when appropriate.
+                                }
+                                i(n);
+                            } else {
+                                n.size = new Y.a(1, 1);
+                                e.oncanplaythrough = function() {
+                                    n.size = new Y.a(n.image.videoWidth / 2, n.image.videoHeight / 2);
+                                    n.needsUpdate = !0;
+                                    e.oncanplaythrough = null;
+                                };
+                            }
+
+                            // Configure video element to autoplay in-place where possible
+                            try {
+                                if (e) {
+                                    try { e.loop = true; } catch (err) {}
+                                    try { e.muted = true; } catch (err) {}
+                                    try { e.playsInline = true; } catch (err) {}
+                                    try { e.setAttribute && e.setAttribute('playsinline', ''); } catch (err) {}
+                                    try { e.preload = 'auto'; } catch (err) {}
+                                    try {
+                                        var playPromise = e.play && e.play();
+                                        if (playPromise && playPromise.then) playPromise.catch(function() {});
+                                    } catch (err) {}
+                                }
+                            } catch (err) {}
+
+                            this.assets.textures[t] || (this.assets.textures[t] = {}), this.assets.textures[t][o] = n
                         }
                     }]), e
                 }(),
@@ -507,8 +548,8 @@
                                     value: new W.a(1786584)
                                 }
                             }, this.geometry = new q.b(1, 1);
-                            // Use a plain MeshBasicMaterial for hero-style images (no shader tints/overlays)
-                            if (this.texture && this.texture.name && (this.texture.name.indexOf("y-defn.png") !== -1 || this.texture.name.indexOf("MOMENT.png") !== -1)) {
+                            // Use plain MeshBasicMaterial for all assets to remove green/gray shader effects
+                            if (this.texture && this.texture.name) {
                                 this.material = new X.a({
                                     map: this.texture,
                                     transparent: !0,
@@ -534,7 +575,7 @@
                                 }
                                 // reduce beyondiamond sizes so they sit comfortably in the layout
                                 if (-1 !== this.texture.name.indexOf("beyondiamond.gif")) {
-                                    scaleFactor = 0.6;
+                                    scaleFactor = 1.0;
                                 }
                                 if (-1 !== this.texture.name.indexOf("beyondiamond2.jpg")) {
                                     scaleFactor = 0.6;
@@ -542,7 +583,7 @@
                                 if (-1 !== this.texture.name.indexOf("beyondiamond1.jpg")) {
                                     scaleFactor = 0.6;
                                 }
-                                // downscale any bangels images (ring.jpg..bangels5.webp or momkidsquare.mp4)
+                                // downscale any bangels images (ring.jpg..bangels5.webp or momkidsqaure.mp4)
                                 if (-1 !== this.texture.name.indexOf("bangels")) {
                                     scaleFactor = 0.5;
                                 }
@@ -562,37 +603,50 @@
                                 zPos = -1000 * this.itemIndex - 600;
                                 if (this.texture && this.texture.name) {
                                     if (-1 !== this.texture.name.indexOf("party.mp4")) {
-                                        // move 'party.mp4' further back (deeper) in the scene
                                         zPos = -1000 * this.itemIndex - 600;
+                                        o.x -= 750;
                                     }
                                     if (-1 !== this.texture.name.indexOf("first.jpg")) {
                                         // push 'first.jpg' further back to increase spacing
                                         zPos = -1100 * this.itemIndex - 800;
                                     }
                                 }
-                            } else if ("mar" === this.month) {
-                                zPos = -1000 * this.itemIndex - 600;
                             } else if ("apr" === this.month) {
-                                // make APR section deeper to create a stronger parallax / deep scroll
                                 zPos = -1000 * this.itemIndex - 800;
                             } else if ("jun" === this.month) {
-                                // make JUN section deep-scroll as requested
                                 zPos = -1200 * this.itemIndex - 800;
                             }
                             if ("feb" === this.month && this.texture && this.texture.name) {
-                                if (-1 !== this.texture.name.indexOf("momkidsquare.mp4") || -1 !== this.texture.name.indexOf("ring.jpg") || -1 !== this.texture.name.indexOf("ear.jpg") || -1 !== this.texture.name.indexOf("neckwear.jpg") || -1 !== this.texture.name.indexOf("bracelet.jpg") || -1 !== this.texture.name.indexOf("bangels5.webp") || -1 !== this.texture.name.indexOf("bangels")) {
+                                if (-1 !== this.texture.name.indexOf("momkidsqaure.mp4")) {
+                                    zPos -= 600;
+                                }
+                                if (-1 !== this.texture.name.indexOf("momkidsqaure.mp4") || -1 !== this.texture.name.indexOf("ring.jpg") || -1 !== this.texture.name.indexOf("ear.jpg") || -1 !== this.texture.name.indexOf("neckwear.jpg") || -1 !== this.texture.name.indexOf("bracelet.jpg") || -1 !== this.texture.name.indexOf("bangels5.webp") || -1 !== this.texture.name.indexOf("bangels")) {
                                     o.x = o.x;
                                 }
                                 if (-1 !== this.texture.name.indexOf("first.jpg")) {
-                                    o.x = -450;
+                                    o.x = 550;
                                 }
                                 if (-1 !== this.texture.name.indexOf("oldcouple.mp4")) {
+                                    zPos -= 800;
+                                    o.y -= 150;
                                 }
                                 if (-1 !== this.texture.name.indexOf("party.mp4")) {
+                                    zPos -= 1000;
+                                    
+                                }
+                                if (-1 !== this.texture.name.indexOf("MOMENT.png")) {
+                                    zPos -= 1000;
+                                }
+                                if (-1 !== this.texture.name.indexOf("y.png")) {
+                                    zPos -= 600;
+                                    // center y.png on screen and mark static so it behaves like a hero item
+                                    o.x = 0;
+                                    o.y = 0;
+                                    this._isStatic = true;
+                                    this.timeline.yDefnItem = this;
                                 }
                                 
                                 if (-1 !== this.texture.name.indexOf("y-defn.png") || -1 !== this.texture.name.indexOf("MOMENT.png")) {
-                                    // start definition/hero centered; clicking will move it to the left
                                     o.x = 0;
                                     o.y = 0;
 
@@ -611,10 +665,10 @@
                                 }
                                 if (-1 !== this.texture.name.indexOf("beyondiamond.gif")) {
                                     // place beyondiamond at the top-left of the JUN heading
-                                    o.x = -350; // left
+                                    o.x = 650; // left
                                     o.y = 350;  // top
                                     // nudge this item slightly forward (closer to camera)
-                                    zPos += 300;
+                                    zPos += 600;
                                 }
                                 if (-1 !== this.texture.name.indexOf("beyondiamond2.jpg")) {
                                     // place beyondiamond2 at the bottom-left of the JUN heading
@@ -638,50 +692,109 @@
                             this.add(this.mesh);
                             this.addCaption();
                             this.timeline.itemMeshes.push(this.mesh);
-                            "video" === this.texture.mediaType && this.timeline.videoItems.push(this.mesh)
+                            // If this texture is a GIF, mark it so we can force updates each frame
+                            if (this.texture && this.texture.name && -1 !== this.texture.name.indexOf('.gif')) {
+                                this.texture.isGif = true;
+                                this.timeline.gifItems = this.timeline.gifItems || [];
+                                this.timeline.gifItems.push(this.texture);
+                            }
+                            "video" === this.texture.mediaType && this.timeline.videoItems.push(this.mesh);
+
+                            // Add small view.png at bottom of specific assets
+                            var assetsWithViewIcon = [
+                                "momkidsqaure.mp4", "oldcouple.mp4", "party.mp4", "first.jpg", "MOMENT.png", "y.png",
+                                "ring.jpg", "ear.jpg", "neckwear.jpg", "bracelet.jpg", "pendants.jpg", "all.jpg",
+                                "beyondiamond1.jpg", "beyondiamond2.jpg", "beyondiamond.gif"
+                            ];
+
+                            if (this.texture && this.texture.name) {
+                                for (var i = 0; i < assetsWithViewIcon.length; i++) {
+                                    if (-1 !== this.texture.name.indexOf(assetsWithViewIcon[i])) {
+                                        var viewTexture = new Z.a().load("images/view.png");
+                                        viewTexture.minFilter = viewTexture.magFilter = te.M;
+                                        var viewMat = new X.a({
+                                            map: viewTexture,
+                                            transparent: !0,
+                                            opacity: 1,
+                                            // discard near-transparent pixels to avoid visible borders on PNGs
+                                            alphaTest: 0.1,
+                                            premultipliedAlpha: true,
+                                            depthWrite: false
+                                        });
+                                        var viewGeo = new q.b(1, 1);
+                                        var viewMesh = new V.a(viewGeo, viewMat);
+                                        viewMesh.scale.set(70, 50, 1); // Smaller width
+                                        viewMesh.position.set(0, -this.mesh.scale.y / 2 + 30, 1); // Position on bottom of surface
+                                        viewMesh.isViewIcon = true; // Mark as view icon
+                                        this.add(viewMesh);
+                                        break; // Only add once per item
+                                    }
+                                }
+                            }
                         }
                     }, {
                         key: "addCaption",
                         value: function() {
                             if (("" !== this.data.caption || "" !== this.data.link) && "" !== this.data.caption) {
                                 var fontName = "Geom Medium_Regular";
+                                // adapt caption sizing for small screens
+                                var capSize = (this.timeline && this.timeline.c && this.timeline.c.size && this.timeline.c.size.w <= 768) ? 16 : 18;
+                                var capLineHeight = capSize === 16 ? 22 : 25;
                                 
                                 if (this.data.caption.includes('\n')) {
                                     this.caption = new G.a;
                                     var lines = this.data.caption.split('\n');
-                                    var lineHeight = 25;
-                                    var totalHeight = lines.length * lineHeight;
+                                    var totalHeight = lines.length * capLineHeight;
                                     
-                                    for (var i = 0; i < lines.length; i++) {
-                                        var lineGeo = new N.a(lines[i].trim(), {
-                                            font: this.timeline.assets.fonts[fontName],
-                                            size: 18,
-                                            height: 0,
-                                            curveSegments: 4
-                                        }).center();
-                                        var lineMesh = new V.a(lineGeo, this.timeline.captionTextMat);
-                                        lineMesh.position.set(0, -i * lineHeight + totalHeight / 2, 0);
-                                        this.caption.add(lineMesh);
+                                    // choose caption material: prefer y.png hero color, then feb color, then default
+                                    var captionMat = this.timeline.captionTextMat;
+                                    if (this.texture && this.texture.name && -1 !== this.texture.name.indexOf('y.png')) {
+                                        this.timeline.yCaptionTextMat = this.timeline.yCaptionTextMat || new X.a({ color: 0xEFEAE2, transparent: !0, opacity: 1, visible: !0 });
+                                        captionMat = this.timeline.yCaptionTextMat;
+                                    } else if (this.month === 'feb') {
+                                        this.timeline.febCaptionTextMat = this.timeline.febCaptionTextMat || new X.a({ color: 0xD30B39, transparent: !0, opacity: 1, visible: !0 });
+                                        captionMat = this.timeline.febCaptionTextMat;
                                     }
+                                    for (var i = 0; i < lines.length; i++) {
+                                            var lineGeo = new N.a(lines[i].trim(), {
+                                                font: this.timeline.assets.fonts[fontName],
+                                                size: capSize,
+                                                height: 0,
+                                                curveSegments: 4
+                                            }).center();
+                                            var lineMesh = new V.a(lineGeo, captionMat);
+                                            lineMesh.position.set(0, -i * capLineHeight + totalHeight / 2, 0);
+                                            this.caption.add(lineMesh);
+                                        }
                                     
                                     if (this.texture && this.texture.name.includes("y-defn.png")) {
                                         // Position caption to the right side for hero-style images
                                         this.caption.position.set(this.mesh.scale.x + 150, 0, 0);
                                     } else {
-                                        // Default captions stay below
-                                        this.caption.position.set(0, -this.mesh.scale.y / 2 - 50, 0);
+                                        // Default captions stay below; smaller offset on mobile
+                                        var captionOffset = (this.timeline && this.timeline.c && this.timeline.c.size && this.timeline.c.size.w <= 768) ? -this.mesh.scale.y / 2 - 30 : -this.mesh.scale.y / 2 - 50;
+                                        this.caption.position.set(0, captionOffset, 0);
                                     }
 
-                                    this.caption.visible = !1;
+                                    this.caption.visible = !0;
                                     this.add(this.caption);
                                 } else {
                                     var e = new N.a(this.data.caption, {
                                         font: this.timeline.assets.fonts[fontName],
-                                        size: 18,
+                                        size: capSize,
                                         height: 0,
                                         curveSegments: 4
                                     }).center();
-                                    this.caption = new V.a(e, this.timeline.captionTextMat), this.caption.position.set(0, -this.mesh.scale.y / 2 - 50, 0), this.caption.visible = !1, this.add(this.caption)
+                                    var singleCaptionMat = this.timeline.captionTextMat;
+                                    if (this.texture && this.texture.name && -1 !== this.texture.name.indexOf('y.png')) {
+                                        this.timeline.yCaptionTextMat = this.timeline.yCaptionTextMat || new X.a({ color: 0xEFEAE2, transparent: !0, opacity: 1, visible: !0 });
+                                        singleCaptionMat = this.timeline.yCaptionTextMat;
+                                    } else if (this.month === 'feb') {
+                                        this.timeline.febCaptionTextMat = this.timeline.febCaptionTextMat || new X.a({ color: 0xD30B39, transparent: !0, opacity: 1, visible: !0 });
+                                        singleCaptionMat = this.timeline.febCaptionTextMat;
+                                    }
+                                    var singleCaptionOffset = (this.timeline && this.timeline.c && this.timeline.c.size && this.timeline.c.size.w <= 768) ? -this.mesh.scale.y / 2 - 30 : -this.mesh.scale.y / 2 - 50;
+                                    this.caption = new V.a(e, singleCaptionMat), this.caption.position.set(0, singleCaptionOffset, 0), this.caption.visible = !0, this.add(this.caption)
                                 }
                             }
                         }
@@ -718,7 +831,7 @@
                                     // scale factor (can be overridden per-month via headingScaleFactor)
                                     var headingScaleFactor = this.timeline.months[this.section].headingScaleFactor || 0.5;
                                     // place the heading image further back so items open in front of it
-                                    var headingZImg = -900;
+                                    var headingZImg = "apr" === this.section ? -100 : -900;
                                     headingMeshImg.position.set(this.timeline.months[this.section].offset || 0, 0, headingZImg);
                                     this.add(headingMeshImg);
                                     // keep a reference on the section so timeline can toggle visibility
@@ -913,14 +1026,8 @@
                         bgColor: 15723235,
                         tintColor: 4360324,
                     },
-                    mar: {
-                        name:"",
-                        bgColor: 15723235,
-                        tintColor: 75060,
-                        offset: -80
-                    },
                     apr: {
-                        headingImage: "assets/mar/beyonlimits.png",
+                        headingImage: "assets/apr/beyonlimits.png",
                         bgColor: 12520995,
                         tintColor: 75060,
                         offset: -80
@@ -946,8 +1053,7 @@
                 },
                 fe = {
                     intro: [ "its_time_to_go.png"],
-                    feb: [ "momkidsquare.mp4", "oldcouple.mp4", "party.mp4", "MOMENT.png", "first.jpg", "y-defn.png"],
-                    mar: ["When_To_Travel_Event_Loop_1080p.mp4.mp4"],
+                    feb: [ "momkidsqaure.mp4", "oldcouple.mp4", "party.mp4", "MOMENT.png", "first.jpg", "y.png"],
                     apr: [ "ring.jpg", "ear.jpg", "neckwear.jpg", "bracelet.jpg", "pendants.jpg", "all.jpg"],
                     may: [],
                     jun: ["beyondiamond1.jpg", "beyondiamond2.jpg", "beyondiamond.gif"],
@@ -956,7 +1062,7 @@
                     jan: {
                     },
                     feb: {
-                        "momkidsquare.mp4": {
+                        "momkidsqaure.mp4": {
                             caption: "Concept work for the Get The Picture project for IAT",
                             link: "https://www.getthepicture.tours/"
                         },
@@ -972,21 +1078,15 @@
                             caption: "",
                             link: ""
                         },
-                        
                         "MOMENT.png": {
                             caption: "",
                             link: ""
                         },
-                        "y-defn.png": {
-                            caption: "",
+                        "y.png": {
+                            caption: "YOUR HANDS RISE\n TO THE SHAPE OF YOUR FREEDOM",
                             link: ""
                         }
-                    },
-                    mar: {
-                        "When_To_Travel_Event_Loop_1080p.mp4.mp4": {
-                            caption: "When To Travel launched",
-                            link: "https://www.insideasiatours.com/when-to-travel"
-                        }
+                        
                     },
                     apr: {
                         "ring.jpg": {
@@ -1063,6 +1163,31 @@
                                 gamma: 0,
                                 beta: 0
                             }, this.easterEgg = this.easterEgg.bind(this), new ge.a(this.easterEgg), this.easterEggEnabled = !1, this.enableLoader || (document.querySelector(".loading").style.display = "none")
+                        
+                            // On mobile, try to play any pending videos on first user gesture
+                            try {
+                                var _tryPlayPendingVideos = function() {
+                                    try {
+                                        window._beyonPendingVideos = window._beyonPendingVideos || [];
+                                        for (var _i = 0; _i < window._beyonPendingVideos.length; _i++) {
+                                            var v = window._beyonPendingVideos[_i];
+                                            try {
+                                                v.muted = true;
+                                                v.playsInline = true;
+                                                v.setAttribute && v.setAttribute('playsinline', '');
+                                                var p = v.play && v.play();
+                                                if (p && p.then) p.catch(function() {});
+                                            } catch (err) {}
+                                        }
+                                    } catch (err) {}
+                                    window.removeEventListener('touchstart', _tryPlayPendingVideos);
+                                    window.removeEventListener('touchend', _tryPlayPendingVideos);
+                                };
+                                if (this.c && this.c.isMobile) {
+                                    window.addEventListener('touchstart', _tryPlayPendingVideos, { passive: true });
+                                    window.addEventListener('touchend', _tryPlayPendingVideos, { passive: true });
+                                }
+                            } catch (err) {}
                         }
                     }, {
                         key: "isMobile",
@@ -1090,7 +1215,11 @@
                             this.renderer = new I.a({
                                 antialias: !0,
                                 alpha: !0
-                            }), this.renderer.setPixelRatio(this.c.dpr), this.renderer.setSize(this.c.size.w, this.c.size.h), document.body.appendChild(this.renderer.domElement), this.preventPullToRefresh(), this.scene = new D.a, this.scene.background = new W.a(15722211), this.scene.fog = new F.a(15722211, 1400, 2e3), this.scene.scale.set(this.c.globalScale, this.c.globalScale, 1);
+                            }), this.renderer.setPixelRatio(this.c.dpr), this.renderer.setSize(this.c.size.w, this.c.size.h), document.body.appendChild(this.renderer.domElement), this.preventPullToRefresh(), this.scene = new D.a,
+                            // On mobile: avoid visible fog/tint by using a neutral (white) color and effectively-disabling fog
+                            // via very large near/far values. Keep `scene.background`/`scene.fog` objects so animations won't throw.
+                            this.c.isMobile ? (this.scene.background = new W.a(16777215), this.scene.fog = new F.a(16777215, 1e9, 1e9), this.renderer.setClearColor(0, 0)) : (this.scene.background = new W.a(15722211), this.scene.fog = new F.a(15722211, 1400, 2e3)),
+                            this.scene.scale.set(this.c.globalScale, this.c.globalScale, 1);
                             var o = 800,
                                 i = 180 * (2 * t(this.c.size.h / 2 / o)) / P;
                             this.camera = new A.a(i, this.c.size.w / this.c.size.h, 1, 2e3), this.camera.position.set(0, this.enableLoader ? 2e3 : 0, o), this.raycaster = new B.a, this.raycaster.near = this.camera.near, this.raycaster.far = this.camera.far, this.intersects = [], this.linkIntersect = [], this.whooshIntersects = [], this.frustum = new H.a, this.cameraViewProjectionMatrix = new U.a, this.mouse = new Y.a, this.mousePerspective = new Y.a, window.addEventListener("devicemotion", function(t) {
@@ -1104,11 +1233,13 @@
                             this.timeline = new G.a, this.scene.add(this.timeline), this.textMat = new X.a({
                                 color: 1786584,
                                 transparent: !0
-                            }), this.captionTextMat = new X.a({
+                            }),
+                            // show captions by default: visible material with full opacity
+                            this.captionTextMat = new X.a({
                                 color: 1786584,
                                 transparent: !0,
-                                opacity: 0,
-                                visible: !1
+                                opacity: 1,
+                                visible: !0
                             }), this.linkUnderlineMat = new X.a({
                                 color: 1786584,
                                 transparent: !0,
@@ -1146,21 +1277,31 @@
                                         })
                                     }
                                     var r = new R.a().setFromObject(e.sections[i]);
-                                    e.sections[i].position.z = o, e.monthPositions[i] = o + 1100;
+                                    e.sections[i].position.z = o;
+                                    // default month position offset for scroll targeting
+                                    // extend FEB and APR so they occupy more timeline depth
+                                    if (i === "feb") {
+                                        e.monthPositions[i] = o + 5600;
+                                    } else if (i === "apr") {
+                                        e.monthPositions[i] = o + 2500;
+                                    } else {
+                                        e.monthPositions[i] = o + 1100;
+                                    }
                                     var s = 800;
-                                    if ("intro" === i) s = 1700;
+                                    if ("intro" === i) s = 700;
                                     if ("dec" === i) s = 1800;
-                                    // add extra gap for FEB to emphasise deep scroll entering the section
-                                    // reduce this extra gap slightly so the end of FEB isn't too distant
-                                    if ("feb" === i) s += 200;
-                                    // add a modest extra gap for APR to push the section back slightly
-                                    if ("apr" === i) s += 400;
+                                    // increase FEB spacing so the section is longer/deeper
+                                    if ("feb" === i) s += 1200;
+                                    // keep APR gap tuned
+                                    if ("apr" === i) s += 0;
                                     if ("may" === i) s += 800;
                                     o += r.min.z - s;
                                     e.timeline.add(e.sections[i]);
                                     "end" === i && (e.stopScrollPos = e.sections[i].position.z)
                                 };
                             for (var n in this.months) i(n);
+                            // DEBUG: log computed monthPositions for verification
+                            try { console.log('monthPositions', e.monthPositions, 'apr->', e.monthPositions.apr); } catch (err) {}
                             try {
                                 var febDefnKey = "feb/y-defn.png";
                                 var yDefnItem = this.items[febDefnKey] || this.items["feb/MOMENT.png"];
@@ -1349,6 +1490,15 @@
                                 var o = e.mesh.material.uniforms.texture.value;
                                 "video" === o.mediaType && (o.image.src = "assets/" + o.name, o.image.play())
                             }
+                            // Hide view icon when opening item
+                            if (e.children) {
+                                for (var vi = 0; vi < e.children.length; vi++) {
+                                    if (e.children[vi].isViewIcon) {
+                                        e.children[vi].visible = false;
+                                        break;
+                                    }
+                                }
+                            }
                             // hide the section heading (e.g., FEB big image) so opened item appears in front
                             try {
                                 var _section = this.sections[e.month];
@@ -1506,7 +1656,21 @@
                             var e = function(t) {
                                 return t.detail && t.wheelDelta ? t.wheelDelta / t.detail / 40 * (0 < t.detail ? 1 : -1) : t.deltaY ? -t.deltaY / 40 : t.wheelDelta / 120
                             }(t);
-                            this.c.scrollPos += 80 * -e, this.c.scrolling = !0
+                            // update scroll position
+                            this.c.scrollPos += 40 * -e;
+                            this.c.scrolling = !0;
+                            // record last scroll time to avoid starting video playback during active scrolling
+                            try {
+                                this._lastScrollTime = performance && performance.now ? performance.now() : Date.now();
+                            } catch (err) {
+                                this._lastScrollTime = Date.now();
+                            }
+                            // Debug: if at end, print helpful diagnostics to console
+                            try {
+                                if (this.activeMonth === 'end') {
+                                    console.log('SCROLL (end): delta=', e, 'c.scrollPos=', this.c.scrollPos, 'timeline.z=', this.timeline && this.timeline.position ? this.timeline.position.z : null, 'stopScrollPos=', this.stopScrollPos);
+                                }
+                            } catch (err) {}
                         }
                     }, {
                         key: "mouseDown",
@@ -1584,15 +1748,21 @@
                     }, {
                         key: "updatePerspective",
                         value: function() {
-                            J.a.to(this.camera.rotation, 4, {
-                                x: .5 * -this.mousePerspective.y,
-                                y: .5 * -this.mousePerspective.x,
-                                ease: "Power4.easeOut"
-                            }), "end" === this.activeMonth && J.a.to(this.sections.end.arrow.rotation, 4, {
-                                x: -1.5 + .2 * this.mousePerspective.y,
-                                y: .8 * this.mousePerspective.x,
-                                ease: "Power4.easeOut"
-                            }), this.updatingPerspective = !1
+                            if (this.camera && this.camera.rotation) {
+                                J.a.to(this.camera.rotation, 4, {
+                                    x: .5 * -this.mousePerspective.y,
+                                    y: .5 * -this.mousePerspective.x,
+                                    ease: "Power4.easeOut"
+                                });
+                            }
+                            if ("end" === this.activeMonth && this.sections && this.sections.end && this.sections.end.arrow && this.sections.end.arrow.rotation) {
+                                J.a.to(this.sections.end.arrow.rotation, 4, {
+                                    x: -1.5 + .2 * this.mousePerspective.y,
+                                    y: .8 * this.mousePerspective.x,
+                                    ease: "Power4.easeOut"
+                                });
+                            }
+                            this.updatingPerspective = !1
                         }
                     }, {
                         key: "updateOrientation",
@@ -1600,11 +1770,14 @@
                             this.orientation.gamma = t.gamma ? t.gamma : 0, this.orientation.beta = t.beta ? t.beta : 0, this.initialOrientation || (this.initialOrientation = {
                                 gamma: this.orientation.gamma,
                                 beta: this.orientation.beta
-                            }), J.a.to(this.camera.rotation, 2, {
-                                x: this.orientation.beta ? (this.orientation.beta - this.initialOrientation.beta) * (P / 300) : 0,
-                                y: this.orientation.gamma ? (this.orientation.gamma - this.initialOrientation.gamma) * (P / 300) : 0,
-                                ease: "Power4.easeOut"
-                            })
+                            });
+                            if (this.camera && this.camera.rotation) {
+                                J.a.to(this.camera.rotation, 2, {
+                                    x: this.orientation.beta ? (this.orientation.beta - this.initialOrientation.beta) * (P / 300) : 0,
+                                    y: this.orientation.gamma ? (this.orientation.gamma - this.initialOrientation.gamma) * (P / 300) : 0,
+                                    ease: "Power4.easeOut"
+                                });
+                            }
                         }
                     }, {
                         key: "resetOrientation",
@@ -1699,31 +1872,57 @@
                         value: function() {
                             this.camera.updateMatrixWorld(), this.camera.matrixWorldInverse.getInverse(this.camera.matrixWorld), this.cameraViewProjectionMatrix.multiplyMatrices(this.camera.projectionMatrix, this.camera.matrixWorldInverse), this.frustum.setFromMatrix(this.cameraViewProjectionMatrix);
                             for (var e = 0; e < this.videoCount; e++) {
-                                if (this.frustum.intersectsObject(this.videoItems[e]) && this.videoItems[e].material.uniforms.texture.value.image.paused) {
-                                    this.videoItems[e].material.uniforms.texture.value.image.play();
-                                    continue
+                                var vidEl = this.videoItems[e] && this.videoItems[e].material && this.videoItems[e].material.uniforms && this.videoItems[e].material.uniforms.texture && this.videoItems[e].material.uniforms.texture.value && this.videoItems[e].material.uniforms.texture.value.image;
+                                if (!vidEl) continue;
+                                // don't start playback immediately after active scrolling to avoid decode jank
+                                var now = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
+                                var timeSinceScroll = now - (this._lastScrollTime || 0);
+                                if (this.frustum.intersectsObject(this.videoItems[e]) && vidEl.paused) {
+                                    if (timeSinceScroll > 300) {
+                                        try { vidEl.play(); } catch (err) {}
+                                    }
+                                    continue;
                                 }
-                                this.frustum.intersectsObject(this.videoItems[e]) || this.videoItems[e].material.uniforms.texture.value.image.paused || this.videoItems[e].material.uniforms.texture.value.image.pause()
+                                this.frustum.intersectsObject(this.videoItems[e]) || vidEl.paused || (function(v) { try { v.pause(); } catch(err) {} })(vidEl)
                             }
                         }
                     }, {
                         key: "animate",
                         value: function() {
                             if (this.animationId = requestAnimationFrame(this.animate.bind(this)), !this.c.touchEnabled && this.updatingPerspective && (this.updatePerspective(), this.updatingPerspective = !1), 0 < this.c.autoMoveSpeed && (this.c.scrolling = !0, this.c.scrollPos += this.c.autoMoveSpeed), this.c.allowScrolling && this.c.scrolling) {
-                                0 >= this.c.scrollPos && (this.c.scrollPos = 0), this.c.scrollPos >= -this.stopScrollPos && (this.c.scrollPos = -this.stopScrollPos);
-                                var e = (this.c.scrollPos - this.timeline.position.z) / 8;
+                                // clamp scrollPos within valid range [0, maxScroll]
+                                var maxScroll = this.stopScrollPos ? -this.stopScrollPos : 0;
+                                if (this.c.scrollPos < 0) this.c.scrollPos = 0;
+                                if (this.c.scrollPos > maxScroll) this.c.scrollPos = maxScroll;
+                                var e = (this.c.scrollPos - this.timeline.position.z) / 16;
                                 this.timeline.position.z += e, !this.c.isMobile && 8 > j(e) && this.handleVideos(), this.easterEggEnabled || this.changeColours(), this.c.scrolling = !!(.1 < j(e))
                             }
                             this.hoveringWhoosh && (this.sections.end.circle.rotation.z += .005);
                             
-                            if (this.yDefnItem && this.yDefnItem._isStatic && this.yDefnItem.mesh) {
-                                this.yDefnItem.mesh.rotation.x = this.camera.rotation.x;
-                                this.yDefnItem.mesh.rotation.y = this.camera.rotation.y;
-                            } else if (this.yDefnItem && !this.yDefnItem._isStatic && this.yDefnItem.mesh) {
-                                this.yDefnItem.mesh.rotation.x = 0;
-                                this.yDefnItem.mesh.rotation.y = 0;
+                            if (this.yDefnItem && this.yDefnItem.mesh) {
+                                var yMesh = this.yDefnItem.mesh;
+                                if (this.yDefnItem._isStatic) {
+                                    if (this.camera && this.camera.rotation) {
+                                        yMesh.rotation.x = this.camera.rotation.x;
+                                        yMesh.rotation.y = this.camera.rotation.y;
+                                    }
+                                } else {
+                                    yMesh.rotation.x = 0;
+                                    yMesh.rotation.y = 0;
+                                }
                             }
                             
+                            // Force-update GIF textures so animated GIFs advance frames when used as textures
+                            try {
+                                if (this.timeline && this.timeline.gifItems && this.timeline.gifItems.length) {
+                                    for (var gi = 0; gi < this.timeline.gifItems.length; gi++) {
+                                        try {
+                                            this.timeline.gifItems[gi].needsUpdate = true;
+                                        } catch (err) {}
+                                    }
+                                }
+                            } catch (err) {}
+
                             this.renderer.render(this.scene, this.camera)
                         }
                     }, {

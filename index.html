@@ -43,6 +43,11 @@
       <img src="./assets/jun/beyoneol.png" alt="Beyon Jun" />
     </div>
 
+    <!-- Shop Beyon CTA (controlled by JS) -->
+    <div class="shop-beyon-cta" style="display:none;">
+      <a href="#shop-online" class="cursor-eye">SHOP BEYON</a>
+    </div>
+
     <div class="shape-slider" id="mayCutsSlider">
       <!-- Swiper Navigation -->
       <div class="swiper-button-prev cuts-prev"></div>
@@ -186,6 +191,27 @@
     >
       <source src="./images/Slide 1 video.mp4" type="video/mp4" />
     </video>
+
+      <script>
+        (function() {
+          try {
+            var vid = document.querySelector('.loading-bg-video');
+            if (!vid) return;
+            var isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+            var smallScreen = window.innerWidth <= 768;
+            if (isTouch || smallScreen) {
+              // use vertical/mobile-friendly background video on mobile
+              var srcEl = vid.querySelector('source');
+              if (srcEl) {
+                srcEl.src = './images/backgroundvertical.mp4';
+                vid.load();
+                // try to play (will succeed after user gesture on some browsers)
+                try { var p = vid.play(); if (p && p.then) p.catch(function(){}); } catch (e) {}
+              }
+            }
+          } catch (err) {}
+        })();
+      </script>
 
     <div class="intro-top-right-image">
       <img src="./images/beyoneol.png" alt="Beyon Intro" />
