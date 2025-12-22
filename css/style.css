@@ -1155,6 +1155,15 @@ body.ready .jun-text-button {
     letter-spacing: 2px;
   }
 
+  /* Hide edge texts on mobile to remove edge text for mobile version */
+  .edge-text,
+  .left-edge,
+  .right-edge {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+  }
+
   /* --- SHAPE SLIDER MOBILE --- */
   .shape-slider {
     top: 50%;
@@ -1276,7 +1285,7 @@ body.ready .jun-text-button {
   }
 
   .feb-top-right-image img {
-    width: 40px;
+    width: 110px;
   }
 
   .apr-top-right-image {
@@ -1285,7 +1294,7 @@ body.ready .jun-text-button {
   }
 
   .apr-top-right-image img {
-    width: 40px;
+    width: 110px;
   }
 
   .may-top-right-image {
@@ -1294,7 +1303,7 @@ body.ready .jun-text-button {
   }
 
   .may-top-right-image img {
-    width: 40px;
+    width: 110px;
   }
 
   .mar-top-right-image {
@@ -1303,7 +1312,7 @@ body.ready .jun-text-button {
   }
 
   .mar-top-right-image img {
-    width: 40px;
+    width: 110px;
   }
 
   .jun-top-right-image {
@@ -1312,7 +1321,7 @@ body.ready .jun-text-button {
   }
 
   .jun-top-right-image img {
-    width: 40px;
+    width: 110px;
   }
 
   .intro-top-right-image {

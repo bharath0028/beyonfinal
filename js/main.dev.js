@@ -89,4 +89,38 @@ function onIconClick() {
 
 document.addEventListener('DOMContentLoaded', () => {
   createOverlayElements();
+  attachSwiperScrollHandler();
 });
+
+// When the user scrolls (wheel) over the cuts/swiper area, scroll the page
+function attachSwiperScrollHandler() {
+  const container = document.querySelector('.cuts-swiper') || document.querySelector('.swiper-wrapper');
+  if (!container) return;
+
+  let last = 0;
+  const COOLDOWN = 650; // ms to prevent multiple triggers
+
+  container.addEventListener('wheel', function (ev) {
+    // Prevent default so the inner scroll doesn't hijack the gesture
+    try { ev.preventDefault(); } catch (e) {}
+    const now = Date.now();
+    if (now - last < COOLDOWN) return;
+    last = now;
+
+    if (ev.deltaY > 0) {
+      // scroll down -> go to next page
+      try {
+        window.scrollBy({ top: window.innerHeight, left: 0, behavior: 'smooth' });
+      } catch (e) {
+        window.scrollTo(0, window.scrollY + window.innerHeight);
+      }
+    } else if (ev.deltaY < 0) {
+      // scroll up -> go to previous page
+      try {
+        window.scrollBy({ top: -window.innerHeight, left: 0, behavior: 'smooth' });
+      } catch (e) {
+        window.scrollTo(0, window.scrollY - window.innerHeight);
+      }
+    }
+  }, { passive: false });
+}
