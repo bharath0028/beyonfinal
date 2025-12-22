@@ -702,7 +702,7 @@
 
                             // Add small view.png at bottom of specific assets
                             var assetsWithViewIcon = [
-                                "momkidsqaure.mp4", "oldcouple.mp4", "party.mp4", "first.jpg", "MOMENT.png", "y.png",
+                                "momkidsqaure.mp4", "oldcouple.mp4", "party.mp4", "first.jpg", "y.png",
                                 "ring.jpg", "ear.jpg", "neckwear.jpg", "bracelet.jpg", "pendants.jpg", "all.jpg",
                                 "beyondiamond1.jpg", "beyondiamond2.jpg", "beyondiamond.gif"
                             ];
