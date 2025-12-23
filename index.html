@@ -213,7 +213,7 @@
                 vid.load();
                 // trigger play after first user touch
                 document.addEventListener('touchstart', function once() {
-              <div class="loading" id="loadingPage">
+                  if (vid) {
                     vid.play().catch(()=>{});
                   }
                   document.removeEventListener('touchstart', once);
@@ -238,16 +238,6 @@
         </button>
       </div>
     </div>
-                // Make any click on the loading page go to the intro page (Android compatible)
-                (function() {
-                  var loadingPage = document.getElementById('loadingPage');
-                  if (loadingPage) {
-                    loadingPage.addEventListener('click', function(e) {
-                      e.preventDefault();
-                      window.location.href = './assets/intro/index.html';
-                    }, { passive: false });
-                  }
-                })();
 
     <div class="insta-icon">
       <a href="https://instagram.com/beyon" target="_blank" rel="noopener noreferrer" class="cursor-eye">
