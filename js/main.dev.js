@@ -1,5 +1,15 @@
 let isBobbing = true;
 
+// Centralized month class helper to avoid repeated layout recalculations
+function setMonthClass(month) {
+  const classes = [
+    'month-feb','month-apr','month-may','month-jun',
+    'month-mar','month-intro','month-jan','month-end'
+  ];
+  document.body.classList.remove(...classes);
+  if (month) document.body.classList.add('month-' + month);
+}
+
 window.handleGoBeyond = function() {
   document.body.classList.add('ready');
 
@@ -109,35 +119,26 @@ document.addEventListener('DOMContentLoaded', () => {
   attachSwiperScrollHandler();
 });
 
-// When the user scrolls (wheel) over the cuts/swiper area, scroll the page
+// When the user swipes over the cuts/swiper area, scroll the page
 function attachSwiperScrollHandler() {
   const container = document.querySelector('.cuts-swiper') || document.querySelector('.swiper-wrapper');
   if (!container) return;
 
-  let last = 0;
-  const COOLDOWN = 650; // ms to prevent multiple triggers
+  let startY = 0;
 
-  container.addEventListener('wheel', function (ev) {
-    // Prevent default so the inner scroll doesn't hijack the gesture
-    try { ev.preventDefault(); } catch (e) {}
-    const now = Date.now();
-    if (now - last < COOLDOWN) return;
-    last = now;
+  container.addEventListener('touchstart', e => {
+    startY = e.touches[0].clientY;
+  }, { passive: true });
 
-    if (ev.deltaY > 0) {
-      // scroll down -> go to next page
-      try {
-        window.scrollBy({ top: window.innerHeight, left: 0, behavior: 'smooth' });
-      } catch (e) {
-        window.scrollTo(0, window.scrollY + window.innerHeight);
-      }
-    } else if (ev.deltaY < 0) {
-      // scroll up -> go to previous page
-      try {
-        window.scrollBy({ top: -window.innerHeight, left: 0, behavior: 'smooth' });
-      } catch (e) {
-        window.scrollTo(0, window.scrollY - window.innerHeight);
-      }
+  container.addEventListener('touchend', e => {
+    const endY = e.changedTouches[0].clientY;
+    const diff = startY - endY;
+
+    if (Math.abs(diff) > 60) {
+      window.scrollBy({
+        top: diff > 0 ? window.innerHeight : -window.innerHeight,
+        behavior: 'smooth'
+      });
     }
-  }, { passive: false });
+  });
 }
