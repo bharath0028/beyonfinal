@@ -1,0 +1,22 @@
+{
+  "name": "BEYON - Lab Grown Diamonds",
+  "short_name": "BEYON",
+  "description": "Discover the beauty of lab grown diamonds at BEYON",
+  "start_url": "/",
+  "display": "fullscreen",
+  "background_color": "#BDC8C9",
+  "theme_color": "#BF0E23",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "images/icon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "images/icon2.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
