@@ -168,11 +168,11 @@
       <img src="./assets/end/end.png" alt="End" class="end-heading" />
       <div class="end-cards">
         <a href="#find-store" class="end-card cursor-eye">
-          <img class="end-card-img" src="./assets/end/find a store.png" alt="Find a store" />
+          <img class="end-card-img" src="./assets/end/find%20a%20store.png" alt="Find a store" />
           <img class="end-card-btn end-find-btn" src="./assets/end/find.png" alt="Find a store" data-hover="./assets/end/findhov.png" data-active="./assets/end/findcli.png" />
         </a>
         <a href="#shop-online" class="end-card cursor-eye">
-          <img class="end-card-img" src="./assets/end/shop online.png" alt="Shop online" />
+          <img class="end-card-img" src="./assets/end/shop%20online.png" alt="Shop online" />
           <img class="end-card-btn end-shop-btn" src="./assets/end/online.png" alt="Shop online" data-hover="./assets/end/onlinehov.png" data-active="./assets/end/onlinecli.png" />
         </a>
         <a href="#meet-social" class="end-card cursor-eye">
@@ -186,7 +186,8 @@
   <div id="feb-center-text" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); font-size:40px; color:#c8102e; font-family:'Geom_Regular','Futura',sans-serif; z-index:100; text-align:center;"> ...TO THE MOMENT WHEN YOU'RE MOST YOURSELF </div>
 
   <div class="loading">
-    <video
+      <video
+        id="loadingPage"
       autoplay
       loop
       muted
@@ -195,7 +196,7 @@
       class="loading-bg-video"
       style="will-change: transform"
     >
-      <source src="./images/Slide 1 video.mp4" type="video/mp4" />
+      <source src="./images/Slide%201%20video.mp4" type="video/mp4" />
     </video>
 
       <script>
@@ -256,6 +257,20 @@
         </g>
       </svg>
     </div>
+        </script>
+        <script>
+          // Make any click on the loading page go to the intro page (Android compatible)
+          (function() {
+            var loadingPage = document.getElementById('loadingPage');
+            if (loadingPage) {
+              loadingPage.addEventListener('click', function(e) {
+                // Prevent default actions for links/buttons inside loading
+                e.preventDefault();
+                window.location.href = './assets/intro/index.html';
+              }, { passive: false });
+            }
+          })();
+        </script>
     <div class="cross">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 413.94 413.94" role="img">
         <g>
@@ -1202,5 +1217,30 @@
       else setupEndButtonSwaps();
     })();
   </script>
+    <script>
+      // Mobile video autoplay fallback: attempt to play pending videos on first user gesture
+      (function() {
+        function tryPlayPending() {
+          try {
+            var vids = window._beyonPendingVideos || [];
+            vids.forEach(function(v) {
+              try {
+                var p = v.play();
+                if (p && p.then) p.catch(function(){});
+              } catch (e) {}
+            });
+          } catch (e) {}
+          removeListeners();
+        }
+        function removeListeners() {
+          document.removeEventListener('pointerdown', tryPlayPending);
+          document.removeEventListener('touchstart', tryPlayPending);
+          document.removeEventListener('click', tryPlayPending);
+        }
+        document.addEventListener('pointerdown', tryPlayPending, { passive: true, once: true });
+        document.addEventListener('touchstart', tryPlayPending, { passive: true, once: true });
+        document.addEventListener('click', tryPlayPending, { passive: true, once: true });
+      })();
+    </script>
 </body>
 </html>
