@@ -228,7 +228,7 @@
         <div class="indulge-wrap">
         <div class="progress-percent" style="display:none">0%</div>
         <img class="indulge-ring" src="./images/intro-load.png" alt="Ring" />
-        <button onclick="handleGoBeyond()" class="enter cursor-eye indulge-btn">
+        <button onclick="handleGoBeyond()" class="enter cursor-eye indulge-btn" style="z-index:100001;pointer-events:auto;position:relative;-webkit-tap-highlight-color:transparent;">
           <img src="./images/indulge.png" alt="Indulge" class="cta-text" />
         </button>
       </div>
@@ -1009,21 +1009,29 @@
       }, 1000); // wait for timeline to initialize
     });
 
-    // Fix indulge button clicks across all browsers
+    // Fix indulge button clicks across all browsers (handle Android touch behavior)
     document.addEventListener('DOMContentLoaded', () => {
       const indulgeBtn = document.querySelector('.indulge-btn');
       if (indulgeBtn) {
         const handleActivate = (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          if (window.handleGoBeyond) {
-            window.handleGoBeyond();
-          }
+          try {
+            if (handleActivate._invoked) return;
+            handleActivate._invoked = true;
+            setTimeout(() => { handleActivate._invoked = false; }, 700);
+            e && e.preventDefault && e.preventDefault();
+            e && e.stopPropagation && e.stopPropagation();
+            if (window.handleGoBeyond) window.handleGoBeyond();
+          } catch (err) {}
         };
 
+        // listen on multiple events to ensure Android registers the tap
         indulgeBtn.addEventListener('click', handleActivate);
         indulgeBtn.addEventListener('touchstart', handleActivate, { passive: false });
+        indulgeBtn.addEventListener('touchend', handleActivate, { passive: false });
+        indulgeBtn.addEventListener('touchcancel', handleActivate, { passive: false });
         indulgeBtn.addEventListener('pointerdown', handleActivate, { passive: false });
+        indulgeBtn.addEventListener('pointerup', handleActivate, { passive: false });
+        indulgeBtn.addEventListener('pointercancel', handleActivate, { passive: false });
       }
     });
   </script>
