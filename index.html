@@ -3,10 +3,6 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Discover the beauty of lab grown diamonds at BEYON">
-  <meta name="theme-color" content="#BF0E23">
-  <link rel="manifest" href="manifest.json">
-  <link rel="apple-touch-icon" href="images/icon.png">
   <title>BEYON</title>
   <link rel="stylesheet" href="./css/style.css">
   <!-- Swiper CSS -->
@@ -172,11 +168,11 @@
       <img src="./assets/end/end.png" alt="End" class="end-heading" />
       <div class="end-cards">
         <a href="#find-store" class="end-card cursor-eye">
-          <img class="end-card-img" src="./assets/end/find a store.png" alt="Find a store" />
+          <img class="end-card-img" src="./assets/end/find%20a%20store.png" alt="Find a store" />
           <img class="end-card-btn end-find-btn" src="./assets/end/find.png" alt="Find a store" data-hover="./assets/end/findhov.png" data-active="./assets/end/findcli.png" />
         </a>
         <a href="#shop-online" class="end-card cursor-eye">
-          <img class="end-card-img" src="./assets/end/shop online.png" alt="Shop online" />
+          <img class="end-card-img" src="./assets/end/shop%20online.png" alt="Shop online" />
           <img class="end-card-btn end-shop-btn" src="./assets/end/online.png" alt="Shop online" data-hover="./assets/end/onlinehov.png" data-active="./assets/end/onlinecli.png" />
         </a>
         <a href="#meet-social" class="end-card cursor-eye">
@@ -199,7 +195,7 @@
       class="loading-bg-video"
       style="will-change: transform"
     >
-      <source src="./images/Slide 1 video.mp4" type="video/mp4" />
+      <source src="./images/Slide%201%20video.mp4" type="video/mp4" />
     </video>
 
       <script>
@@ -284,13 +280,6 @@
     </div>
   </div>
 
-  <script>
-    // Adjust renderer options for Android compatibility
-    if ('ontouchstart' in window || navigator.maxTouchPoints > 0 || /android/i.test(navigator.userAgent)) {
-      // Disable antialias on Android/mobile to prevent WebGL context issues
-      window._beyonRendererOptions = { antialias: false };
-    }
-  </script>
   <script type="module" src="./js/main.dev.js"></script>
   <script src="./js/runtime.js"></script>
   <script src="./js/three.js"></script>
@@ -397,15 +386,6 @@
         if (indulgeRing) indulgeRing.style.display = 'block';
         indulgeBtn.style.display = 'flex';
         if (cursorEl) cursorEl.style.display = 'block';
-        // Add click listener for the button
-        if (indulgeBtn && !indulgeBtn.hasClickListener) {
-          indulgeBtn.addEventListener('click', handleGoBeyond);
-          indulgeBtn.hasClickListener = true;
-          // For Android, also add touchstart to ensure it works
-          if (/android/i.test(navigator.userAgent) || ('ontouchstart' in window && navigator.maxTouchPoints > 0)) {
-            indulgeBtn.addEventListener('touchstart', handleGoBeyond);
-          }
-        }
       };
 
       const checkAndToggle = () => {
@@ -427,16 +407,6 @@
           showIndulgeAndCursor();
         }
       }, 5000);
-
-      // Force loading completion on mobile devices (including Android) to handle asset loading issues
-      if ('ontouchstart' in window || navigator.maxTouchPoints > 0 || /android/i.test(navigator.userAgent)) {
-        setTimeout(() => {
-          if (!document.body.classList.contains('ready')) {
-            progressEl.textContent = '100%';
-            checkAndToggle();
-          }
-        }, 3000);
-      }
     });
   </script>
   <script>
@@ -1232,5 +1202,30 @@
       else setupEndButtonSwaps();
     })();
   </script>
+    <script>
+      // Mobile video autoplay fallback: attempt to play pending videos on first user gesture
+      (function() {
+        function tryPlayPending() {
+          try {
+            var vids = window._beyonPendingVideos || [];
+            vids.forEach(function(v) {
+              try {
+                var p = v.play();
+                if (p && p.then) p.catch(function(){});
+              } catch (e) {}
+            });
+          } catch (e) {}
+          removeListeners();
+        }
+        function removeListeners() {
+          document.removeEventListener('pointerdown', tryPlayPending);
+          document.removeEventListener('touchstart', tryPlayPending);
+          document.removeEventListener('click', tryPlayPending);
+        }
+        document.addEventListener('pointerdown', tryPlayPending, { passive: true, once: true });
+        document.addEventListener('touchstart', tryPlayPending, { passive: true, once: true });
+        document.addEventListener('click', tryPlayPending, { passive: true, once: true });
+      })();
+    </script>
 </body>
 </html>
