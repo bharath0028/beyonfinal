@@ -228,7 +228,7 @@
         <div class="indulge-wrap">
         <div class="progress-percent" style="display:none">0%</div>
         <img class="indulge-ring" src="./images/intro-load.png" alt="Ring" />
-        <button onclick="handleGoBeyond()" class="enter cursor-eye indulge-btn">
+        <button class="enter cursor-eye indulge-btn">
           <img src="./images/indulge.png" alt="Indulge" class="cta-text" />
         </button>
       </div>
@@ -393,6 +393,15 @@
         if (indulgeRing) indulgeRing.style.display = 'block';
         indulgeBtn.style.display = 'flex';
         if (cursorEl) cursorEl.style.display = 'block';
+        // Add click listener for the button
+        if (indulgeBtn && !indulgeBtn.hasClickListener) {
+          indulgeBtn.addEventListener('click', handleGoBeyond);
+          indulgeBtn.hasClickListener = true;
+          // For Android, also add touchstart to ensure it works
+          if (/android/i.test(navigator.userAgent) || ('ontouchstart' in window && navigator.maxTouchPoints > 0)) {
+            indulgeBtn.addEventListener('touchstart', handleGoBeyond);
+          }
+        }
       };
 
       const checkAndToggle = () => {
