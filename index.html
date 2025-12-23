@@ -228,7 +228,7 @@
         <div class="indulge-wrap">
         <div class="progress-percent" style="display:none">0%</div>
         <img class="indulge-ring" src="./images/intro-load.png" alt="Ring" />
-        <button onclick="handleGoBeyond()" class="enter cursor-eye indulge-btn" style="z-index:100001;pointer-events:auto;position:relative;-webkit-tap-highlight-color:transparent;">
+        <button onclick="handleGoBeyond()" class="enter cursor-eye indulge-btn">
           <img src="./images/indulge.png" alt="Indulge" class="cta-text" />
         </button>
       </div>
@@ -973,68 +973,6 @@
   </script>
   <!-- Swiper JS -->
   <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
-
-  <!-- Android fixes -->
-  <script>
-    // Fix touch interactions on Android
-    document.addEventListener('DOMContentLoaded', () => {
-      setTimeout(() => {
-        if (window.timeline && window.timeline.gesture) {
-          window.timeline.gesture.on('tap', (ev) => {
-            const timeline = window.timeline;
-            const touch = ev.changedTouches ? ev.changedTouches[0] : (ev.touches ? ev.touches[0] : null);
-            if (touch && timeline.renderer && timeline.renderer.domElement) {
-              const rect = timeline.renderer.domElement.getBoundingClientRect();
-              const x = touch.clientX - rect.left;
-              const y = touch.clientY - rect.top;
-              timeline.mouse.x = 2 * (x / rect.width) - 1;
-              timeline.mouse.y = 2 * -(y / rect.height) + 1;
-              timeline.raycaster.setFromCamera(timeline.mouse, timeline.camera);
-              timeline.intersects = timeline.raycaster.intersectObjects(timeline.itemMeshes);
-              if (timeline.intersects.length > 0) {
-                timeline.openItem(timeline.intersects[0].object.parent);
-                if (timeline.dom && timeline.dom.cursor) timeline.dom.cursor.dataset.cursor = "cross";
-              }
-            }
-          });
-        }
-
-        // Force lower pixel ratio on mobile for performance
-        if (window.timeline && window.timeline.c && window.timeline.c.isMobile) {
-          window.timeline.c.dpr = 1;
-          if (window.timeline.renderer) {
-            window.timeline.renderer.setPixelRatio(1);
-          }
-        }
-      }, 1000); // wait for timeline to initialize
-    });
-
-    // Fix indulge button clicks across all browsers (handle Android touch behavior)
-    document.addEventListener('DOMContentLoaded', () => {
-      const indulgeBtn = document.querySelector('.indulge-btn');
-      if (indulgeBtn) {
-        const handleActivate = (e) => {
-          try {
-            if (handleActivate._invoked) return;
-            handleActivate._invoked = true;
-            setTimeout(() => { handleActivate._invoked = false; }, 700);
-            e && e.preventDefault && e.preventDefault();
-            e && e.stopPropagation && e.stopPropagation();
-            if (window.handleGoBeyond) window.handleGoBeyond();
-          } catch (err) {}
-        };
-
-        // listen on multiple events to ensure Android registers the tap
-        indulgeBtn.addEventListener('click', handleActivate);
-        indulgeBtn.addEventListener('touchstart', handleActivate, { passive: false });
-        indulgeBtn.addEventListener('touchend', handleActivate, { passive: false });
-        indulgeBtn.addEventListener('touchcancel', handleActivate, { passive: false });
-        indulgeBtn.addEventListener('pointerdown', handleActivate, { passive: false });
-        indulgeBtn.addEventListener('pointerup', handleActivate, { passive: false });
-        indulgeBtn.addEventListener('pointercancel', handleActivate, { passive: false });
-      }
-    });
-  </script>
   <script>
     // Initialize Swiper for May Cuts Slider
     (function() {
