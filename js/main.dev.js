@@ -2,6 +2,23 @@ let isBobbing = true;
 
 window.handleGoBeyond = function() {
   document.body.classList.add('ready');
+
+  // Lazy load heavy scripts after intro
+  function loadHeavyScripts() {
+    const s1 = document.createElement('script');
+    s1.src = './js/three.js';
+    document.body.appendChild(s1);
+
+    const s2 = document.createElement('script');
+    s2.src = './js/gsap.js';
+    document.body.appendChild(s2);
+
+    const s3 = document.createElement('script');
+    s3.src = './js/main.app.js';
+    document.body.appendChild(s3);
+  }
+
+  loadHeavyScripts();
 };
 
 function createOverlayElements() {

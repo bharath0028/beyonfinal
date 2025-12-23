@@ -631,6 +631,11 @@ html.enable-cursor * {
   cursor: none !important;
 }
 
+/* Hide custom cursor on touch devices */
+.touch-device .cursor {
+  display: none !important;
+}
+
 /* Hide scrollbars but keep scrolling (cross-browser) */
 html, body {
   -ms-overflow-style: none; /* IE and Edge */
