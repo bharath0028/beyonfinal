@@ -280,6 +280,13 @@
     </div>
   </div>
 
+  <script>
+    // Adjust renderer options for Android compatibility
+    if ('ontouchstart' in window || navigator.maxTouchPoints > 0 || /android/i.test(navigator.userAgent)) {
+      // Disable antialias on Android/mobile to prevent WebGL context issues
+      window._beyonRendererOptions = { antialias: false };
+    }
+  </script>
   <script type="module" src="./js/main.dev.js"></script>
   <script src="./js/runtime.js"></script>
   <script src="./js/three.js"></script>
@@ -407,6 +414,16 @@
           showIndulgeAndCursor();
         }
       }, 5000);
+
+      // Force loading completion on mobile devices (including Android) to handle asset loading issues
+      if ('ontouchstart' in window || navigator.maxTouchPoints > 0 || /android/i.test(navigator.userAgent)) {
+        setTimeout(() => {
+          if (!document.body.classList.contains('ready')) {
+            progressEl.textContent = '100%';
+            checkAndToggle();
+          }
+        }, 3000);
+      }
     });
   </script>
   <script>
