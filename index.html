@@ -1008,6 +1008,24 @@
         }
       }, 1000); // wait for timeline to initialize
     });
+
+    // Fix indulge button clicks across all browsers
+    document.addEventListener('DOMContentLoaded', () => {
+      const indulgeBtn = document.querySelector('.indulge-btn');
+      if (indulgeBtn) {
+        const handleActivate = (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          if (window.handleGoBeyond) {
+            window.handleGoBeyond();
+          }
+        };
+
+        indulgeBtn.addEventListener('click', handleActivate);
+        indulgeBtn.addEventListener('touchstart', handleActivate, { passive: false });
+        indulgeBtn.addEventListener('pointerdown', handleActivate, { passive: false });
+      }
+    });
   </script>
   <script>
     // Initialize Swiper for May Cuts Slider
