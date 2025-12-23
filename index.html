@@ -973,6 +973,42 @@
   </script>
   <!-- Swiper JS -->
   <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+
+  <!-- Android fixes -->
+  <script>
+    // Fix touch interactions on Android
+    document.addEventListener('DOMContentLoaded', () => {
+      setTimeout(() => {
+        if (window.timeline && window.timeline.gesture) {
+          window.timeline.gesture.on('tap', (ev) => {
+            const timeline = window.timeline;
+            const touch = ev.changedTouches ? ev.changedTouches[0] : (ev.touches ? ev.touches[0] : null);
+            if (touch && timeline.renderer && timeline.renderer.domElement) {
+              const rect = timeline.renderer.domElement.getBoundingClientRect();
+              const x = touch.clientX - rect.left;
+              const y = touch.clientY - rect.top;
+              timeline.mouse.x = 2 * (x / rect.width) - 1;
+              timeline.mouse.y = 2 * -(y / rect.height) + 1;
+              timeline.raycaster.setFromCamera(timeline.mouse, timeline.camera);
+              timeline.intersects = timeline.raycaster.intersectObjects(timeline.itemMeshes);
+              if (timeline.intersects.length > 0) {
+                timeline.openItem(timeline.intersects[0].object.parent);
+                if (timeline.dom && timeline.dom.cursor) timeline.dom.cursor.dataset.cursor = "cross";
+              }
+            }
+          });
+        }
+
+        // Force lower pixel ratio on mobile for performance
+        if (window.timeline && window.timeline.c && window.timeline.c.isMobile) {
+          window.timeline.c.dpr = 1;
+          if (window.timeline.renderer) {
+            window.timeline.renderer.setPixelRatio(1);
+          }
+        }
+      }, 1000); // wait for timeline to initialize
+    });
+  </script>
   <script>
     // Initialize Swiper for May Cuts Slider
     (function() {
