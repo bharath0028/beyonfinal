@@ -17,7 +17,7 @@ function createOverlayElements() {
   // RIGHT EDGE
   const rightEdge = document.createElement('div');
   rightEdge.className = 'edge-text right-edge';
-  rightEdge.innerHTML = "<span>LAB GROWN DIAMONDS</span>";
+  rightEdge.innerHTML = "<span>LAB-GROWN DIAMONDS</span>";
   main.appendChild(rightEdge);
 
   // CTA

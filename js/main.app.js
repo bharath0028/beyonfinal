@@ -568,17 +568,18 @@
                             var scaleFactor = 1;
                             if (this.texture && this.texture.name) {
                                 if (-1 !== this.texture.name.indexOf("first.jpg")) {
-                                    scaleFactor = 0.5;
+                                    // make first.jpg larger on the timeline
+                                    scaleFactor = 0.9;
                                 }
                                 if (-1 !== this.texture.name.indexOf("y-defn.png")) {
                                     scaleFactor = 0.9;
                                 }
                                 // reduce beyondiamond sizes so they sit comfortably in the layout
-                                if (-1 !== this.texture.name.indexOf("beyondiamond.gif")) {
-                                    scaleFactor = 1.0;
+                                if (-1 !== this.texture.name.indexOf("beyondiamond.mp4")) {
+                                    scaleFactor = 1.9;
                                 }
                                 if (-1 !== this.texture.name.indexOf("beyondiamond2.jpg")) {
-                                    scaleFactor = 0.6;
+                                    scaleFactor = 1.1;
                                 }
                                 if (-1 !== this.texture.name.indexOf("beyondiamond1.jpg")) {
                                     scaleFactor = 0.6;
@@ -599,16 +600,17 @@
                             var zPos = -450 * this.itemIndex - 200;
                             // deeper spacing for FEB/MAR (stronger parallax / deep scroll)
                             if ("feb" === this.month) {
-                                // base deep spacing for FEB
-                                zPos = -1000 * this.itemIndex - 600;
+                                // base deep spacing for FEB (increased to lengthen the section)
+                                zPos = -1400 * this.itemIndex - 800;
                                 if (this.texture && this.texture.name) {
                                     if (-1 !== this.texture.name.indexOf("party.mp4")) {
-                                        zPos = -1000 * this.itemIndex - 600;
+                                        zPos = -1400 * this.itemIndex - 800;
                                         o.x -= 750;
+                                        o.y += 150;
                                     }
                                     if (-1 !== this.texture.name.indexOf("first.jpg")) {
-                                        // push 'first.jpg' further back to increase spacing
-                                        zPos = -1100 * this.itemIndex - 800;
+                                        // push 'first.jpg' slightly further back and keep larger size
+                                        zPos = -1500 * this.itemIndex - 1500;
                                     }
                                 }
                             } else if ("apr" === this.month) {
@@ -618,7 +620,25 @@
                             }
                             if ("feb" === this.month && this.texture && this.texture.name) {
                                 if (-1 !== this.texture.name.indexOf("momkidsqaure.mp4")) {
-                                    zPos -= 600;
+                                    zPos -= 1400;
+                                    o.y -= 150;
+                                    // nudge this video slightly upward so it sits higher in the FEB layout
+                                    try { o.y = (o.y || 0) - 200; } catch (e) {}
+
+                                    // enable a low-volume audio playback for this specific video where possible
+                                    try {
+                                        var _vid = this.texture && this.texture.image ? this.texture.image : null;
+                                        if (_vid && _vid.tagName && _vid.tagName.toLowerCase() === 'video') {
+                                            // Start muted autoplay where possible (muted autoplay is allowed by browsers)
+                                            try { _vid.muted = true; } catch (e) {}
+                                            try { _vid.playsInline = true; _vid.setAttribute && _vid.setAttribute('playsinline', ''); } catch (e) {}
+                                            try { _vid.loop = true; } catch (e) {}
+                                            try { _vid.volume = 0.12; } catch (e) {}
+                                            try { var _p = _vid.play && _vid.play(); if (_p && _p.then) _p.catch(function(){}); } catch (e) {}
+                                            // ensure we have a fallback for mobile first-gesture play
+                                            try { window._beyonPendingVideos = window._beyonPendingVideos || []; window._beyonPendingVideos.push(_vid); } catch (e) {}
+                                        }
+                                    } catch (e) {}
                                 }
                                 if (-1 !== this.texture.name.indexOf("momkidsqaure.mp4") || -1 !== this.texture.name.indexOf("ring.jpg") || -1 !== this.texture.name.indexOf("ear.jpg") || -1 !== this.texture.name.indexOf("neckwear.jpg") || -1 !== this.texture.name.indexOf("bracelet.jpg") || -1 !== this.texture.name.indexOf("bangels5.webp") || -1 !== this.texture.name.indexOf("bangels")) {
                                     o.x = o.x;
@@ -627,15 +647,24 @@
                                     o.x = 550;
                                 }
                                 if (-1 !== this.texture.name.indexOf("oldcouple.mp4")) {
-                                    zPos -= 800;
+                                    zPos -= 1500;
                                     o.y -= 150;
                                 }
                                 if (-1 !== this.texture.name.indexOf("party.mp4")) {
-                                    zPos -= 1000;
-                                    
+                                    zPos -= 1900;
+                                    // position party.mp4 to the right of its default slot
+                                    o.x += 750;
                                 }
                                 if (-1 !== this.texture.name.indexOf("MOMENT.png")) {
-                                    zPos -= 1000;
+                                    zPos -= 1950;
+                                }
+                                // center and hero-treat the user's new asset 'yourhands.png'
+                                if (-1 !== this.texture.name.indexOf("yourhands.png")) {
+                                    zPos -= 1550;
+                                    o.x = 0;
+                                    o.y = 0;
+                                    this._isStatic = true;
+                                    this.timeline.yDefnItem = this;
                                 }
                                 if (-1 !== this.texture.name.indexOf("y.png")) {
                                     zPos -= 600;
@@ -661,19 +690,21 @@
                                     // place beyondiamond1 at the top-right of the JUN heading
                                     o.x = 350;  // right
                                     o.y = 250;  // top
+                                    zPos -= 1000;
                                     // removed zPos override to keep original spacing
                                 }
-                                if (-1 !== this.texture.name.indexOf("beyondiamond.gif")) {
+                                if (-1 !== this.texture.name.indexOf("beyondiamond.mp4")) {
                                     // place beyondiamond at the top-left of the JUN heading
                                     o.x = 650; // left
                                     o.y = 350;  // top
                                     // nudge this item slightly forward (closer to camera)
-                                    zPos += 600;
+                                    zPos -= 1200;
                                 }
                                 if (-1 !== this.texture.name.indexOf("beyondiamond2.jpg")) {
                                     // place beyondiamond2 at the bottom-left of the JUN heading
                                     o.x = -550; // left
-                                    o.y = -450; // bottom
+                                    o.y = -250; // bottom
+                                    zPos -= 1100;
                                     // removed zPos override to keep original spacing
                                 }
                             }
@@ -684,8 +715,31 @@
                                 // removed zPos override to keep original spacing
                             }
                             // apr-specific: nudge bangels1 slightly downward for better layout
-                            if ("apr" === this.month && this.texture && this.texture.name && -1 !== this.texture.name.indexOf("ring.jpg")) {
-                                o.y -= 140;
+                            // and move APR assets slightly further back to increase perceived depth
+                            if ("apr" === this.month && this.texture && this.texture.name) {
+                                // move all APR assets slightly further back
+                                zPos -= 300;
+                                // for ring.jpg: lift it up, move it to the right, and nudge slightly further back
+                                if (-1 !== this.texture.name.indexOf("ring.jpg")) {
+                                    o.y += 420; // lift up
+                                    o.x += 750; // move to the right
+                                    zPos -= 200; // move a bit further back
+                                }
+                                if (-1 !== this.texture.name.indexOf("bracelet.jpg")) {
+                                    o.y += 120; // lift up
+                                }
+                                if (-1 !== this.texture.name.indexOf("pendants.jpg")) {
+                                    o.y += 120; // lift up
+                                }
+                                if (-1 !== this.texture.name.indexOf("ear.jpg")) {
+                                    o.y -= 120; // lift up
+                                }
+                                if (-1 !== this.texture.name.indexOf("neckwear.jpg")) {
+                                    o.y -= 120; // lift up
+                                }
+                                if (-1 !== this.texture.name.indexOf("all.jpg")) {
+                                    o.y -= 120; // lift up
+                                }
                             }
                             this.position.set(o.x, o.y, zPos);
                             this.origPos = new Y.a(o.x, o.y);
@@ -700,37 +754,6 @@
                             }
                             "video" === this.texture.mediaType && this.timeline.videoItems.push(this.mesh);
 
-                            // Add small view.png at bottom of specific assets
-                            var assetsWithViewIcon = [
-                                "momkidsqaure.mp4", "oldcouple.mp4", "party.mp4", "first.jpg", "y.png",
-                                "ring.jpg", "ear.jpg", "neckwear.jpg", "bracelet.jpg", "pendants.jpg", "all.jpg",
-                                "beyondiamond1.jpg", "beyondiamond2.jpg", "beyondiamond.gif"
-                            ];
-
-                            if (this.texture && this.texture.name) {
-                                for (var i = 0; i < assetsWithViewIcon.length; i++) {
-                                    if (-1 !== this.texture.name.indexOf(assetsWithViewIcon[i])) {
-                                        var viewTexture = new Z.a().load("images/view.png");
-                                        viewTexture.minFilter = viewTexture.magFilter = te.M;
-                                        var viewMat = new X.a({
-                                            map: viewTexture,
-                                            transparent: !0,
-                                            opacity: 1,
-                                            // discard near-transparent pixels to avoid visible borders on PNGs
-                                            alphaTest: 0.1,
-                                            premultipliedAlpha: true,
-                                            depthWrite: false
-                                        });
-                                        var viewGeo = new q.b(1, 1);
-                                        var viewMesh = new V.a(viewGeo, viewMat);
-                                        viewMesh.scale.set(70, 50, 1); // Smaller width
-                                        viewMesh.position.set(0, -this.mesh.scale.y / 2 + 30, 1); // Position on bottom of surface
-                                        viewMesh.isViewIcon = true; // Mark as view icon
-                                        this.add(viewMesh);
-                                        break; // Only add once per item
-                                    }
-                                }
-                            }
                         }
                     }, {
                         key: "addCaption",
@@ -821,12 +844,10 @@
                                 if ("feb" === this.section) fontKey = "Oooh Baby";
 
                                 var _loader = new Z.a();
-                                // If a heading image is provided for this month, use it
                                 if (this.timeline.months[this.section].headingImage) {
                                     var headingGeoImg = new q.b(1, 1);
                                     var headingMatImg = new X.a({ transparent: !0, opacity: 1 });
                                     var headingMeshImg = new V.a(headingGeoImg, headingMatImg);
-                                    // reasonable placeholder size until image loads
                                     headingMeshImg.scale.set(800, 200, 1);
                                     // scale factor (can be overridden per-month via headingScaleFactor)
                                     var headingScaleFactor = this.timeline.months[this.section].headingScaleFactor || 0.5;
@@ -893,25 +914,46 @@
 
                                 // Add descriptive paragraph for June below the heading
                                 if ("jun" === this.section) {
-                                    var para1 = new N.a("Lab diamonds are created by replicating the same heat and pressure found deep within the Earth.", {
-                                        font: this.timeline.assets.fonts["Geom Light_Regular"],
-                                        size: 28,
-                                        height: 0,
-                                        curveSegments: 6
-                                    }).center();
-                                    var paraMesh1 = new V.a(para1, this.timeline.contactTextMat);
-                                    paraMesh1.position.set(this.timeline.months[this.section].offset || 0, -220, -600);
-                                    this.add(paraMesh1);
-
-                                    var para2 = new N.a("Advanced technology grows pure carbon crystals layer by layer into real diamonds.", {
-                                        font: this.timeline.assets.fonts["Geom Light_Regular"],
-                                        size: 28,
-                                        height: 0,
-                                        curveSegments: 6
-                                    }).center();
-                                    var paraMesh2 = new V.a(para2, this.timeline.contactTextMat);
-                                    paraMesh2.position.set(this.timeline.months[this.section].offset || 0, -260, -600);
-                                    this.add(paraMesh2);
+                                    // Combine the two sentences into a single 3-line paragraph with reduced width
+                                    var paraGroup = new G.a();
+                                    var paraLines = [
+                                        "Lab diamonds are created by replicating the",
+                                        "same heat and pressure found deep within the Earth.",
+                                        "Advanced technology grows pure carbon crystals layer by layer into real diamonds."
+                                    ];
+                                    var lineSize = 22; // smaller size to reduce width
+                                    var lineHeight = 30;
+                                    var totalHeight = paraLines.length * lineHeight;
+                                    for (var li = 0; li < paraLines.length; li++) {
+                                        var g = new N.a(paraLines[li], {
+                                            font: this.timeline.assets.fonts["Geom Light_Regular"],
+                                            size: lineSize,
+                                            height: 0,
+                                            curveSegments: 6
+                                        }).center();
+                                        var m = new V.a(g, this.timeline.contactTextMat);
+                                        // clone material so we can animate this paragraph independently
+                                        try {
+                                            m.material = m.material.clone();
+                                            m.material.transparent = true;
+                                            m.material.opacity = 0; // start hidden
+                                        } catch (err) {}
+                                        m.position.set(0, -li * lineHeight + totalHeight / 2, 0);
+                                        paraGroup.add(m);
+                                    }
+                                    paraGroup.position.set(this.timeline.months[this.section].offset || 0, -220, -600);
+                                    this.add(paraGroup);
+                                    // reveal paragraph after a short delay (ms)
+                                    (function(pg) {
+                                        setTimeout(function() {
+                                            try {
+                                                for (var ci = 0; ci < pg.children.length; ci++) {
+                                                    var ch = pg.children[ci];
+                                                    if (ch.material) ch.material.opacity = 1;
+                                                }
+                                            } catch (e) {}
+                                        }, 1500);
+                                    })(paraGroup);
                                 }
                             }
                         }
@@ -1053,26 +1095,30 @@
                 },
                 fe = {
                     intro: [ "its_time_to_go.png"],
-                    feb: [ "momkidsqaure.mp4", "oldcouple.mp4", "party.mp4", "MOMENT.png", "first.jpg", "y.png"],
+                    feb: [ "momkidsqaure.mp4", "oldcouple.mp4", "yourhands.png", "party.mp4", "MOMENT.png", "first.jpg", "y.png"],
                     apr: [ "ring.jpg", "ear.jpg", "neckwear.jpg", "bracelet.jpg", "pendants.jpg", "all.jpg"],
                     may: [],
-                    jun: ["beyondiamond1.jpg", "beyondiamond2.jpg", "beyondiamond.gif"],
+                    jun: ["beyondiamond1.jpg", "beyondiamond2.jpg", "beyondiamond.mp4"],
               },
                 be = {
                     jan: {
                     },
                     feb: {
                         "momkidsqaure.mp4": {
-                            caption: "Concept work for the Get The Picture project for IAT",
-                            link: "https://www.getthepicture.tours/"
+                            caption: "Watch the film",
+                            link: ""
                         },
                         "oldcouple.mp4": {
-                            caption: "Entries for the Spaced competition",
+                            caption: "Watch the film",
                             link: ""
                         },
                         "party.mp4": {
-                            caption: "Image hover effect experimentation",
+                            caption: "Watch the film",
                             link: "https://dribbble.com/shots/4228572-Photo-Gallery-Hover-Idea"
+                        },
+                        "yourhands.png": {
+                            caption: "",
+                            link: ""
                         },
                         "first.jpg": {
                             caption: "",
@@ -1125,7 +1171,7 @@
                             caption: "Jake came on board as a back-end developer",
                             link: ""
                         },
-                        "beyondiamond.gif": {
+                        "beyondiamond.mp4": {
                             caption: "Close up of the Jekka bottle for 6 O'Clock Gin",
                             link: ""
                         }
@@ -1281,9 +1327,11 @@
                                     // default month position offset for scroll targeting
                                     // extend FEB and APR so they occupy more timeline depth
                                     if (i === "feb") {
-                                        e.monthPositions[i] = o + 5600;
+                                        // extend FEB start position deeper to lengthen the scroll section
+                                        e.monthPositions[i] = o + 7000;
                                     } else if (i === "apr") {
-                                        e.monthPositions[i] = o + 2500;
+                                        // extend APR start position deeper to match FEB so APR occupies more timeline depth
+                                        e.monthPositions[i] = o + 1000;
                                     } else {
                                         e.monthPositions[i] = o + 1100;
                                     }
@@ -1291,9 +1339,9 @@
                                     if ("intro" === i) s = 700;
                                     if ("dec" === i) s = 1800;
                                     // increase FEB spacing so the section is longer/deeper
-                                    if ("feb" === i) s += 1200;
-                                    // keep APR gap tuned
-                                    if ("apr" === i) s += 0;
+                                    if ("feb" === i) s += 1500;
+                                    // increase APR spacing to match FEB (make section longer/deeper)
+                                    if ("apr" === i) s += 1300;
                                     if ("may" === i) s += 800;
                                     o += r.min.z - s;
                                     e.timeline.add(e.sections[i]);
@@ -1656,6 +1704,10 @@
                             var e = function(t) {
                                 return t.detail && t.wheelDelta ? t.wheelDelta / t.detail / 40 * (0 < t.detail ? 1 : -1) : t.deltaY ? -t.deltaY / 40 : t.wheelDelta / 120
                             }(t);
+                            try {
+                                // record scroll direction for context-sensitive behaviours (down = user moving forward)
+                                this._lastScrollDirection = (e < 0) ? 'down' : 'up';
+                            } catch (err) {}
                             // update scroll position
                             this.c.scrollPos += 40 * -e;
                             this.c.scrolling = !0;
@@ -1701,13 +1753,13 @@
 
                             if (this.intersects.length > 0) {
                                 var hitParent = this.intersects[0].object.parent;
-                                // Prevent opening MOMENT.png via click
-                                if (!(hitParent && hitParent.texture && hitParent.texture.name && hitParent.texture.name.indexOf("MOMENT.png") !== -1)) {
+                                // Prevent opening MOMENT.png and yourhands.png via click
+                                if (!(hitParent && hitParent.texture && hitParent.texture.name && (hitParent.texture.name.indexOf("MOMENT.png") !== -1 || hitParent.texture.name.indexOf("yourhands.png") !== -1))) {
                                     this.openItem(hitParent);
                                     this.dom.cursor.dataset.cursor = "cross";
                                     return;
                                 } else {
-                                    // If it's MOMENT.png, do nothing on click
+                                    // If it's MOMENT.png or yourhands.png, do nothing on click
                                     return;
                                 }
                             }
@@ -1879,7 +1931,17 @@
                                 var timeSinceScroll = now - (this._lastScrollTime || 0);
                                 if (this.frustum.intersectsObject(this.videoItems[e]) && vidEl.paused) {
                                     if (timeSinceScroll > 300) {
-                                        try { vidEl.play(); } catch (err) {}
+                                        try {
+                                            // If this is the momkids video and the user scrolled down into it, enable low-volume audio
+                                            var _tex = (this.videoItems[e].material && this.videoItems[e].material.uniforms && this.videoItems[e].material.uniforms.texture && this.videoItems[e].material.uniforms.texture.value) ? this.videoItems[e].material.uniforms.texture.value : null;
+                                            var _name = _tex && _tex.name ? _tex.name : '';
+                                            if (-1 !== _name.indexOf('momkidsqaure.mp4') && this._lastScrollDirection === 'down' && !this._momkidsAudioPlayed) {
+                                                try { vidEl.muted = false; } catch (err) {}
+                                                try { vidEl.volume = 0.14; } catch (err) {}
+                                                this._momkidsAudioPlayed = true;
+                                            }
+                                            try { vidEl.play(); } catch (err) {}
+                                        } catch (err) {}
                                     }
                                     continue;
                                 }

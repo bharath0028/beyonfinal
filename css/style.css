@@ -83,15 +83,20 @@ body {
   overflow: hidden; /* prevent scrollbars on body */
 }
 
-/* Mobile: keep body fixed to avoid Android layout jumps */
+/* Remove solid background/tint on small screens so video can fill fullscreen */
 @media (max-width: 768px) {
   html, body {
-    position: fixed;
-    inset: 0;
+    position: static;
     width: 100%;
     height: 100%;
-    background: #BDC8C9 !important;
+    background: transparent !important;
     overflow: hidden;
+  }
+  .loading {
+    background: transparent !important;
+  }
+  .loading-bg-video {
+    background: transparent !important;
   }
 }
 
@@ -410,6 +415,7 @@ body.ready .insta-icon {
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
 }
 
 .loading-bg-video {
@@ -420,6 +426,8 @@ body.ready .insta-icon {
   height: 100%;
   object-fit: cover;
   z-index: 1;
+  pointer-events: auto;
+  cursor: pointer;
 }
 
 .welcome {
@@ -533,7 +541,7 @@ body.ready .insta-icon {
 
 /* hide the button until loading completes */
 .indulge-wrap .indulge-btn {
-  opacity: 0;
+  display: none;
 }
 
 /* When the page is ready, allow interaction with the indulge wrapper/button */
@@ -588,6 +596,7 @@ body.ready .indulge-wrap .indulge-btn {
   left: 0;
   pointer-events: none;
   z-index: 100000;
+  display: none !important;
 }
 
 .cursor .pointer {
@@ -620,12 +629,10 @@ body.ready .indulge-wrap .indulge-btn {
   left: -20px;
 }
 
-/* Hide default cursor when enabled and force across children */
-@media (min-width:767px){
+/* Show default cursor when enabled and force across children */
 html.enable-cursor,
 html.enable-cursor * {
-  cursor: none !important;
-}
+  cursor: default !important;
 }
 
 /* Hide scrollbars but keep scrolling (cross-browser) */
@@ -1379,43 +1386,4 @@ body.ready .jun-text-button {
   opacity: 1;
   transform: translateY(0);
   pointer-events: auto;
-}
-
-/* Ensure canvas renders above page background but below UI overlays */
-canvas {
-  z-index: 1;
-}
-
-.edge-text,
-.shop-beyon-cta,
-.insta-icon,
-.bottom-text,
-.bottom-center-icon,
-.bottom-center-icon2 {
-  z-index: 9999 !important;
-}
-
-/* ANDROID WEBGL RENDER FIX */
-@media (pointer: coarse) {
-  canvas {
-    position: fixed !important;
-    top: 0;
-    left: 0;
-    width: 100vw !important;
-    height: 100vh !important;
-    z-index: 1 !important;
-    transform: translateZ(0);
-    will-change: transform;
-  }
-}
-
-/* Prevent loading overlay from capturing touches on Android */
-.loading,
-.loading * {
-  pointer-events: none !important;
-}
-
-/* When app is ready, hide loading overlay to restore normal pointer behavior */
-body.ready .loading {
-  display: none !important;
 }

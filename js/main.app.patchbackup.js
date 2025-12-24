@@ -565,7 +565,7 @@
                                     scaleFactor = 0.9;
                                 }
                                 // reduce beyondiamond sizes so they sit comfortably in the layout
-                                if (-1 !== this.texture.name.indexOf("beyondiamond.gif")) {
+                                if (-1 !== this.texture.name.indexOf("beyondiamond.mp4")) {
                                     scaleFactor = 1.0;
                                 }
                                 if (-1 !== this.texture.name.indexOf("beyondiamond2.jpg")) {
@@ -654,7 +654,7 @@
                                     o.y = 250;  // top
                                     // removed zPos override to keep original spacing
                                 }
-                                if (-1 !== this.texture.name.indexOf("beyondiamond.gif")) {
+                                if (-1 !== this.texture.name.indexOf("beyondiamond.mp4")) {
                                     // place beyondiamond at the top-left of the JUN heading
                                     o.x = 650; // left
                                     o.y = 350;  // top
@@ -695,7 +695,7 @@
                             var assetsWithViewIcon = [
                                 "momkidsqaure.mp4", "oldcouple.mp4", "party.mp4", "first.jpg", "y.png",
                                 "ring.jpg", "ear.jpg", "neckwear.jpg", "bracelet.jpg", "pendants.jpg", "all.jpg",
-                                "beyondiamond1.jpg", "beyondiamond2.jpg", "beyondiamond.gif"
+                                "beyondiamond1.jpg", "beyondiamond2.jpg", "beyondiamond.mp4"
                             ];
 
                             if (this.texture && this.texture.name) {
@@ -1047,7 +1047,7 @@
                     feb: [ "momkidsqaure.mp4", "oldcouple.mp4", "party.mp4", "MOMENT.png", "first.jpg", "y.png"],
                     apr: [ "ring.jpg", "ear.jpg", "neckwear.jpg", "bracelet.jpg", "pendants.jpg", "all.jpg"],
                     may: [],
-                    jun: ["beyondiamond1.jpg", "beyondiamond2.jpg", "beyondiamond.gif"],
+                    jun: ["beyondiamond1.jpg", "beyondiamond2.jpg", "beyondiamond.mp4"],
               },
                 be = {
                     jan: {
@@ -1116,7 +1116,7 @@
                             caption: "Jake came on board as a back-end developer",
                             link: ""
                         },
-                        "beyondiamond.gif": {
+                        "beyondiamond.mp4": {
                             caption: "Close up of the Jekka bottle for 6 O'Clock Gin",
                             link: ""
                         }

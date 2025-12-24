@@ -21,7 +21,7 @@
       />
     </div>
     <div class="edge-text left-edge"><span>FREEDOM LOOKS GOOD ON YOU</span></div>
-    <div class="edge-text right-edge"><span>LAB GROWN DIAMONDS</span></div>
+    <div class="edge-text right-edge"><span>LAB - GROWN DIAMONDS</span></div>
 
     <div class="feb-top-right-image">
       <img src="./assets/feb/beyon.png" alt="Beyon Feb" />
@@ -168,11 +168,11 @@
       <img src="./assets/end/end.png" alt="End" class="end-heading" />
       <div class="end-cards">
         <a href="#find-store" class="end-card cursor-eye">
-          <img class="end-card-img" src="./assets/end/find%20a%20store.png" alt="Find a store" />
+          <img class="end-card-img" src="./assets/end/find a store.png" alt="Find a store" />
           <img class="end-card-btn end-find-btn" src="./assets/end/find.png" alt="Find a store" data-hover="./assets/end/findhov.png" data-active="./assets/end/findcli.png" />
         </a>
         <a href="#shop-online" class="end-card cursor-eye">
-          <img class="end-card-img" src="./assets/end/shop%20online.png" alt="Shop online" />
+          <img class="end-card-img" src="./assets/end/shop online.png" alt="Shop online" />
           <img class="end-card-btn end-shop-btn" src="./assets/end/online.png" alt="Shop online" data-hover="./assets/end/onlinehov.png" data-active="./assets/end/onlinecli.png" />
         </a>
         <a href="#meet-social" class="end-card cursor-eye">
@@ -195,7 +195,7 @@
       class="loading-bg-video"
       style="will-change: transform"
     >
-      <source src="./images/Slide%201%20video.mp4" type="video/mp4" />
+      <source src="./images/Slide 1 video.mp4" type="video/mp4" />
     </video>
 
       <script>
@@ -359,17 +359,9 @@
     })();
 
     window.onIconClick = function() {
-      try {
-        if (/Android/i.test(navigator.userAgent) && window.timeline) {
-          // Directly advance the timeline on Android
-          window.timeline.c.scrollPos += 600;
-          window.timeline.c.scrolling = true;
-        } else {
-          // Desktop / iOS
-          const event = new WheelEvent('wheel', { deltaY: 200 });
-          document.dispatchEvent(event);
-        }
-      } catch (e) {}
+      // Simulate scroll down to advance to next page/section
+      const event = new WheelEvent('wheel', { deltaY: 200 });
+      document.dispatchEvent(event);
     };
     window.toggleBobbing = function() {
       // Toggle bobbing on the center icon if present
@@ -386,13 +378,13 @@
       if (!progressEl || !indulgeBtn) return;
 
       // hide indulge button, ring, and custom cursor initially
-      indulgeBtn.style.opacity = '0';
-      if (indulgeRing) indulgeRing.style.opacity = '0';
+      indulgeBtn.style.display = 'none';
+      if (indulgeRing) indulgeRing.style.display = 'none';
       if (cursorEl) cursorEl.style.display = 'none';
 
       const showIndulgeAndCursor = () => {
-        if (indulgeRing) indulgeRing.style.opacity = '1';
-        indulgeBtn.style.opacity = '1';
+        if (indulgeRing) indulgeRing.style.display = 'block';
+        indulgeBtn.style.display = 'flex';
         if (cursorEl) cursorEl.style.display = 'block';
       };
 
@@ -415,25 +407,31 @@
           showIndulgeAndCursor();
         }
       }, 5000);
+
+      // Attach pointer handler to the background video for clicks
+      (function () {
+        const video = document.querySelector('.loading-bg-video');
+        if (!video) return;
+
+        let advanced = false;
+
+        function advance(e) {
+          if (advanced) return;
+
+          advanced = true;
+
+          try {
+            handleGoBeyond();
+          } catch (err) {}
+
+          e.preventDefault();
+          e.stopPropagation();
+        }
+
+        // pointerdown = instant + mobile-safe
+        video.addEventListener('pointerdown', advance, { passive: false });
+      })();
     });
-  </script>
-  <script>
-    // Force entry on Android after a user interaction so intro can't get stuck
-    (function() {
-      if (!/Android/i.test(navigator.userAgent)) return;
-
-      let forced = false;
-      function forceEnter() {
-        if (forced) return;
-        forced = true;
-        try {
-          handleGoBeyond();
-        } catch (e) {}
-      }
-
-      document.addEventListener('touchstart', forceEnter, { once: true });
-      document.addEventListener('pointerdown', forceEnter, { once: true });
-    })();
   </script>
   <script>
     // Show the bottom intro image only for jan and feb months.
@@ -978,7 +976,7 @@
           junTextButton.style.visibility = 'visible';
           setTimeout(() => {
             junTextButton.style.opacity = '1';
-          }, 2500);
+          }, 4000);
         } else {
           junTextButton.style.display = 'none';
           junTextButton.style.opacity = '0';
@@ -1173,36 +1171,6 @@
     }, 3000);
   </script>
   <script>
-    // Ensure canvas is forced visible whenever handleGoBeyond() runs
-    (function() {
-      function attachWrapper() {
-        if (!window.handleGoBeyond || window.handleGoBeyond._beynWrapped) return;
-        var orig = window.handleGoBeyond;
-        function wrapped() {
-          try { orig.apply(this, arguments); } catch (e) {}
-          setTimeout(function() {
-            try {
-              var canvas = document.querySelector('canvas');
-              if (canvas) {
-                canvas.style.display = 'block';
-                canvas.style.visibility = 'visible';
-                canvas.style.opacity = '1';
-              }
-            } catch (e) {}
-          }, 100);
-        }
-        wrapped._beynWrapped = true;
-        window.handleGoBeyond = wrapped;
-      }
-
-      if (window.handleGoBeyond) attachWrapper();
-      else {
-        var iv = setInterval(function() { if (window.handleGoBeyond) { clearInterval(iv); attachWrapper(); } }, 200);
-        setTimeout(function() { clearInterval(iv); }, 6000);
-      }
-    })();
-  </script>
-  <script>
     (function() {
       const febText = document.getElementById('feb-center-text');
       if (!febText) return;
@@ -1257,66 +1225,6 @@
       if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', setupEndButtonSwaps);
       else setupEndButtonSwaps();
     })();
-  </script>
-    <script>
-      // Mobile video autoplay fallback: attempt to play pending videos on first user gesture
-      (function() {
-        function tryPlayPending() {
-          try {
-            var vids = window._beyonPendingVideos || [];
-            vids.forEach(function(v) {
-              try {
-                var p = v.play();
-                if (p && p.then) p.catch(function(){});
-              } catch (e) {}
-            });
-          } catch (e) {}
-          removeListeners();
-        }
-        function removeListeners() {
-          document.removeEventListener('pointerdown', tryPlayPending);
-          document.removeEventListener('touchstart', tryPlayPending);
-          document.removeEventListener('click', tryPlayPending);
-        }
-        document.addEventListener('pointerdown', tryPlayPending, { passive: true, once: true });
-        document.addEventListener('touchstart', tryPlayPending, { passive: true, once: true });
-        document.addEventListener('click', tryPlayPending, { passive: true, once: true });
-      })();
-    </script>
-
-  <!-- Android: force `body.ready` on first interaction and fallback timeout -->
-  <script>
-    (function () {
-      if (!/Android/i.test(navigator.userAgent)) return;
-
-      function forceReady() {
-        try {
-          if (!document.body.classList.contains('ready')) {
-            document.body.classList.add('ready');
-          }
-        } catch (e) {}
-      }
-
-      document.addEventListener('touchstart', forceReady, { once: true });
-      document.addEventListener('pointerdown', forceReady, { once: true });
-
-      // absolute fallback in case user never interacts
-      setTimeout(forceReady, 1500);
-    })();
-  </script>
-
-  <!-- Android: extra canvas-visibility fallback to force WebGL repaint -->
-  <script>
-    setTimeout(() => {
-      try {
-        const canvas = document.querySelector('canvas');
-        if (canvas) {
-          canvas.style.display = 'block';
-          canvas.style.visibility = 'visible';
-          canvas.style.opacity = '1';
-        }
-      } catch (e) {}
-    }, 500);
   </script>
 </body>
 </html>
