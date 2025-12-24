@@ -81,13 +81,6 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
   overflow: hidden; /* prevent scrollbars on body */
-  touch-action: manipulation;
-  overscroll-behavior: none;
-}
-.indulge-btn,
-.indulge-btn * {
-  pointer-events: auto !important;
-  touch-action: manipulation;
 }
 
 /* Remove solid background/tint on small screens so video can fill fullscreen */
@@ -105,11 +98,6 @@ body {
   .loading-bg-video {
     background: transparent !important;
   }
-  @media (pointer: coarse) {
-  html, body {
-    touch-action: auto;
-  }
-}
 }
 
 /* Edge Texts - Left and Right */
@@ -431,7 +419,6 @@ body.ready .insta-icon {
 
 .loading-bg-video {
   position: absolute;
-    pointer-events: none;
   top: 0;
   left: 0;
   width: 100%;
@@ -551,7 +538,7 @@ body.ready .insta-icon {
 
 /* hide the button until loading completes */
 .indulge-wrap .indulge-btn {
-  display: none;
+  opacity: 0;
 }
 
 /* When the page is ready, allow interaction with the indulge wrapper/button */
@@ -639,9 +626,11 @@ body.ready .indulge-wrap .indulge-btn {
 }
 
 /* Hide default cursor when enabled and force across children */
+@media (min-width:767px){
 html.enable-cursor,
 html.enable-cursor * {
   cursor: none !important;
+}
 }
 
 /* Hide scrollbars but keep scrolling (cross-browser) */

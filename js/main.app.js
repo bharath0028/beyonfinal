@@ -288,22 +288,22 @@
                     for (let o = 0; o < this.handlers[e].length; o++) this.handlers[e][o](t)
                 }
                 onTouchStart(e) {
-                    this.thresholdX = this.opts.threshold("x", this), this.thresholdY = this.opts.threshold("y", this), this.disregardVelocityThresholdX = this.opts.disregardVelocityThreshold("x", this), this.disregardVelocityThresholdY = this.opts.disregardVelocityThreshold("y", this), this.touchStartX = "mousedown" === e.type ? e.clientX : e.changedTouches[0].clientX, this.touchStartY = "mousedown" === e.type ? e.clientY : e.changedTouches[0].clientY, this.touchMoveX = null, this.touchMoveY = null, this.touchEndX = null, this.touchEndY = null, this.longPressTimer = setTimeout(() => this.fire("longpress", e), this.opts.longPressTime), this.fire("panstart", e)
+                    this.thresholdX = this.opts.threshold("x", this), this.thresholdY = this.opts.threshold("y", this), this.disregardVelocityThresholdX = this.opts.disregardVelocityThreshold("x", this), this.disregardVelocityThresholdY = this.opts.disregardVelocityThreshold("y", this), this.touchStartX = "mousedown" === e.type ? e.screenX : e.changedTouches[0].screenX, this.touchStartY = "mousedown" === e.type ? e.screenY : e.changedTouches[0].screenY, this.touchMoveX = null, this.touchMoveY = null, this.touchEndX = null, this.touchEndY = null, this.longPressTimer = setTimeout(() => this.fire("longpress", e), this.opts.longPressTime), this.fire("panstart", e)
                 }
                 onTouchMove(e) {
                     if ("mousemove" !== e.type || this.touchStartX && null === this.touchEndX) {
-                        const t = ("mousemove" === e.type ? e.clientX : e.changedTouches[0].clientX) - this.touchStartX;
+                        const t = ("mousemove" === e.type ? e.screenX : e.changedTouches[0].screenX) - this.touchStartX;
                         this.velocityX = t - this.touchMoveX, this.touchMoveX = t;
-                        const o = ("mousemove" === e.type ? e.clientY : e.changedTouches[0].clientY) - this.touchStartY;
+                        const o = ("mousemove" === e.type ? e.screenY : e.changedTouches[0].screenY) - this.touchStartY;
                         this.velocityY = o - this.touchMoveY, this.touchMoveY = o;
                         const i = j(this.touchMoveX),
                             n = j(this.touchMoveY);
-                        this.swipingHorizontal = i > this.thresholdX, this.swipingVertical = n > this.thresholdY, this.swipingDirection = i > n ? this.swipingHorizontal ? "horizontal" : "pre-horizontal" : this.swipingVertical ? "vertical" : "pre-vertical", O(i, n) > this.opts.pressThreshold && clearTimeout(this.longPressTimer), e.cancelable && e.preventDefault(), this.fire("panmove", e)
+                        this.swipingHorizontal = i > this.thresholdX, this.swipingVertical = n > this.thresholdY, this.swipingDirection = i > n ? this.swipingHorizontal ? "horizontal" : "pre-horizontal" : this.swipingVertical ? "vertical" : "pre-vertical", O(i, n) > this.opts.pressThreshold && clearTimeout(this.longPressTimer), this.fire("panmove", e)
                     }
                 }
                 onTouchEnd(e) {
                     if ("mouseup" !== e.type || this.touchStartX && null === this.touchEndX) {
-                        this.touchEndX = "mouseup" === e.type ? e.clientX : e.changedTouches[0].clientX, this.touchEndY = "mouseup" === e.type ? e.clientY : e.changedTouches[0].clientY, this.fire("panend", e), clearTimeout(this.longPressTimer);
+                        this.touchEndX = "mouseup" === e.type ? e.screenX : e.changedTouches[0].screenX, this.touchEndY = "mouseup" === e.type ? e.screenY : e.changedTouches[0].screenY, this.fire("panend", e), clearTimeout(this.longPressTimer);
                         const t = this.touchEndX - this.touchStartX,
                             o = j(t),
                             i = this.touchEndY - this.touchStartY,
@@ -314,16 +314,25 @@
             }
             K.defaults = {
                 threshold: (e) => O(25, z(.15 * ("x" === e ? window.innerWidth || document.body.clientWidth : window.innerHeight || document.body.clientHeight))),
-                velocityThreshold: 5,
+                velocityThreshold: 10,
                 disregardVelocityThreshold: (e, t) => z(.5 * ("x" === e ? t.element.clientWidth : t.element.clientHeight)),
-                pressThreshold: 5,
+                pressThreshold: 8,
                 diagonalSwipes: !1,
                 diagonalLimit: Math.tan(45 * 1.5 / 180 * P),
-                longPressTime: 400,
-                doubleTapTime: 250,
+                longPressTime: 500,
+                doubleTapTime: 300,
                 mouseSupport: !0
             };
-            let Q = { passive: false };
+            let Q = !1;
+            try {
+                window.addEventListener("test", null, Object.defineProperty({}, "passive", {
+                    get: function() {
+                        Q = {
+                            passive: !0
+                        }
+                    }
+                }))
+            } catch (e) {}
             var Z = o("xC2a"),
                 $ = o("EpSA"),
                 ee = o("e/Nn"),
@@ -1914,14 +1923,6 @@
                                 }
                             } catch (err) {}
 
-
-                            // ANDROID INERTIA PATCH
-                            IS_ANDROID && Math.abs(this.androidScroll.velocity) > 0.1 && (
-                                this.androidScroll.velocity *= 0.92,
-                                this.c.scrollPos += this.androidScroll.velocity,
-                                this.c.scrolling = !0
-                            );
-
                             this.renderer.render(this.scene, this.camera)
                         }
                     }, {
@@ -1946,64 +1947,15 @@
                         key: "initListeners",
                         value: function() {
                             var e = this;
-                            this.resize = this.resize.bind(this);
-                            this.scroll = this.scroll.bind(this);
-                            this.mouseDown = this.mouseDown.bind(this);
-                            this.mouseUp = this.mouseUp.bind(this);
-                            this.openContact = this.openContact.bind(this);
-                            this.moveToStart = this.moveToStart.bind(this);
-                            window.addEventListener("resize", this.resize, !1);
-                            this.renderer.domElement.addEventListener("mousedown", this.mouseDown, !1);
-                            this.renderer.domElement.addEventListener("mouseup", this.mouseUp, !1);
-                            this.renderer.domElement.addEventListener("wheel", this.scroll, !1);
-                            if (this.gyroEnabled) {
-                                this.updateOrientation = this.updateOrientation.bind(this);
-                                this.resetOrientation = this.resetOrientation.bind(this);
-                                window.addEventListener("deviceorientation", this.updateOrientation);
-                                this.dom.compass.addEventListener("click", this.resetOrientation, !1);
-                            }
-                            if (this.enableLoader) {
-                                document.querySelector(".enter").addEventListener("click", this.moveToStart, !1);
-                            }
-                            this.gesture = new K(this.renderer.domElement, { mouseSupport: !1 });
-
-                            // ANDROID PATCH START
-                            var IS_ANDROID = /Android/i.test(navigator.userAgent);
-                            this.androidScroll = { lastY: 0, velocity: 0 };
-
-                            this.gesture.on("panmove", function(ev) {
-                                if (!IS_ANDROID) {
-                                    e.c.scrollPos += 6 * -e.gesture.velocityY;
-                                    e.c.scrolling = !0;
-                                    return;
-                                }
-                                var t = ev.changedTouches && ev.changedTouches[0];
-                                if (!t) return;
-                                if (e.androidScroll.lastY === 0) {
-                                    e.androidScroll.lastY = t.clientY;
-                                    return;
-                                }
-                                var d = e.androidScroll.lastY - t.clientY;
-                                e.androidScroll.lastY = t.clientY;
-                                d = Math.max(-60, Math.min(60, d));
-                                e.c.scrollPos += 2.2 * d;
-                                e.androidScroll.velocity = d;
-                                e.c.scrolling = !0;
-                            });
-
-                            this.gesture.on("panend", function() {
-                                e.androidScroll.lastY = 0;
-                                e.c.autoMoveSpeed = 0;
-                            });
-
-                            this.gesture.on("longpress", function() {
-                                return e.c.autoMoveSpeed = 10;
-                            });
-                            // ANDROID PATCH END
-
-                            if (!this.c.touchEnabled) {
-                                this.dom.cursor.dataset.cursor = "pointer";
-                            }
+                            this.resize = this.resize.bind(this), this.scroll = this.scroll.bind(this), this.mouseDown = this.mouseDown.bind(this), this.mouseUp = this.mouseUp.bind(this), this.openContact = this.openContact.bind(this), this.moveToStart = this.moveToStart.bind(this), window.addEventListener("resize", this.resize, !1), this.renderer.domElement.addEventListener("mousedown", this.mouseDown, !1), this.renderer.domElement.addEventListener("mouseup", this.mouseUp, !1), this.renderer.domElement.addEventListener("wheel", this.scroll, !1), this.gyroEnabled && (this.updateOrientation = this.updateOrientation.bind(this), this.resetOrientation = this.resetOrientation.bind(this), window.addEventListener("deviceorientation", this.updateOrientation), this.dom.compass.addEventListener("click", this.resetOrientation, !1)), this.enableLoader && document.querySelector(".enter").addEventListener("click", this.moveToStart, !1), this.gesture = new K(this.renderer.domElement, {
+                                mouseSupport: !1
+                            }), this.gesture.on("panmove", function() {
+                                e.c.scrollPos += 6 * -e.gesture.velocityY, e.c.scrolling = !0
+                            }), this.gesture.on("panend", function() {
+                                return e.c.autoMoveSpeed = 0
+                            }), this.gesture.on("longpress", function() {
+                                return e.c.autoMoveSpeed = 10
+                            }), this.c.touchEnabled || (this.dom.cursor.dataset.cursor = "pointer")
                         }
                     }, {
                         key: "initCursorListeners",
