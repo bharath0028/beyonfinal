@@ -1914,6 +1914,12 @@
                                 }
                             } catch (err) {}
 
+                            if (IS_ANDROID && Math.abs(this.androidScroll.velocity) > 0.1) {
+                                this.androidScroll.velocity *= 0.92;
+                                this.c.scrollPos += this.androidScroll.velocity;
+                                this.c.scrolling = true;
+                            }
+
                             this.renderer.render(this.scene, this.camera)
                         }
                     }, {
