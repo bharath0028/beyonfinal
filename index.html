@@ -1283,5 +1283,40 @@
         document.addEventListener('click', tryPlayPending, { passive: true, once: true });
       })();
     </script>
+
+  <!-- Android: force `body.ready` on first interaction and fallback timeout -->
+  <script>
+    (function () {
+      if (!/Android/i.test(navigator.userAgent)) return;
+
+      function forceReady() {
+        try {
+          if (!document.body.classList.contains('ready')) {
+            document.body.classList.add('ready');
+          }
+        } catch (e) {}
+      }
+
+      document.addEventListener('touchstart', forceReady, { once: true });
+      document.addEventListener('pointerdown', forceReady, { once: true });
+
+      // absolute fallback in case user never interacts
+      setTimeout(forceReady, 1500);
+    })();
+  </script>
+
+  <!-- Android: extra canvas-visibility fallback to force WebGL repaint -->
+  <script>
+    setTimeout(() => {
+      try {
+        const canvas = document.querySelector('canvas');
+        if (canvas) {
+          canvas.style.display = 'block';
+          canvas.style.visibility = 'visible';
+          canvas.style.opacity = '1';
+        }
+      } catch (e) {}
+    }, 500);
+  </script>
 </body>
 </html>
