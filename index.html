@@ -1173,6 +1173,36 @@
     }, 3000);
   </script>
   <script>
+    // Ensure canvas is forced visible whenever handleGoBeyond() runs
+    (function() {
+      function attachWrapper() {
+        if (!window.handleGoBeyond || window.handleGoBeyond._beynWrapped) return;
+        var orig = window.handleGoBeyond;
+        function wrapped() {
+          try { orig.apply(this, arguments); } catch (e) {}
+          setTimeout(function() {
+            try {
+              var canvas = document.querySelector('canvas');
+              if (canvas) {
+                canvas.style.display = 'block';
+                canvas.style.visibility = 'visible';
+                canvas.style.opacity = '1';
+              }
+            } catch (e) {}
+          }, 100);
+        }
+        wrapped._beynWrapped = true;
+        window.handleGoBeyond = wrapped;
+      }
+
+      if (window.handleGoBeyond) attachWrapper();
+      else {
+        var iv = setInterval(function() { if (window.handleGoBeyond) { clearInterval(iv); attachWrapper(); } }, 200);
+        setTimeout(function() { clearInterval(iv); }, 6000);
+      }
+    })();
+  </script>
+  <script>
     (function() {
       const febText = document.getElementById('feb-center-text');
       if (!febText) return;
