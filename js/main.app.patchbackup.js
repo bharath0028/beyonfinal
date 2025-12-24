@@ -1914,13 +1914,11 @@
                                 }
                             } catch (err) {}
 
-
-                            // ANDROID INERTIA PATCH
-                            IS_ANDROID && Math.abs(this.androidScroll.velocity) > 0.1 && (
-                                this.androidScroll.velocity *= 0.92,
-                                this.c.scrollPos += this.androidScroll.velocity,
-                                this.c.scrolling = !0
-                            );
+                            if (IS_ANDROID && Math.abs(this.androidScroll.velocity) > 0.1) {
+                                this.androidScroll.velocity *= 0.92;
+                                this.c.scrollPos += this.androidScroll.velocity;
+                                this.c.scrolling = true;
+                            }
 
                             this.renderer.render(this.scene, this.camera)
                         }
@@ -1946,64 +1944,15 @@
                         key: "initListeners",
                         value: function() {
                             var e = this;
-                            this.resize = this.resize.bind(this);
-                            this.scroll = this.scroll.bind(this);
-                            this.mouseDown = this.mouseDown.bind(this);
-                            this.mouseUp = this.mouseUp.bind(this);
-                            this.openContact = this.openContact.bind(this);
-                            this.moveToStart = this.moveToStart.bind(this);
-                            window.addEventListener("resize", this.resize, !1);
-                            this.renderer.domElement.addEventListener("mousedown", this.mouseDown, !1);
-                            this.renderer.domElement.addEventListener("mouseup", this.mouseUp, !1);
-                            this.renderer.domElement.addEventListener("wheel", this.scroll, !1);
-                            if (this.gyroEnabled) {
-                                this.updateOrientation = this.updateOrientation.bind(this);
-                                this.resetOrientation = this.resetOrientation.bind(this);
-                                window.addEventListener("deviceorientation", this.updateOrientation);
-                                this.dom.compass.addEventListener("click", this.resetOrientation, !1);
-                            }
-                            if (this.enableLoader) {
-                                document.querySelector(".enter").addEventListener("click", this.moveToStart, !1);
-                            }
-                            this.gesture = new K(this.renderer.domElement, { mouseSupport: !1 });
-
-                            // ANDROID PATCH START
-                            var IS_ANDROID = /Android/i.test(navigator.userAgent);
-                            this.androidScroll = { lastY: 0, velocity: 0 };
-
-                            this.gesture.on("panmove", function(ev) {
-                                if (!IS_ANDROID) {
-                                    e.c.scrollPos += 6 * -e.gesture.velocityY;
-                                    e.c.scrolling = !0;
-                                    return;
-                                }
-                                var t = ev.changedTouches && ev.changedTouches[0];
-                                if (!t) return;
-                                if (e.androidScroll.lastY === 0) {
-                                    e.androidScroll.lastY = t.clientY;
-                                    return;
-                                }
-                                var d = e.androidScroll.lastY - t.clientY;
-                                e.androidScroll.lastY = t.clientY;
-                                d = Math.max(-60, Math.min(60, d));
-                                e.c.scrollPos += 2.2 * d;
-                                e.androidScroll.velocity = d;
-                                e.c.scrolling = !0;
-                            });
-
-                            this.gesture.on("panend", function() {
-                                e.androidScroll.lastY = 0;
-                                e.c.autoMoveSpeed = 0;
-                            });
-
-                            this.gesture.on("longpress", function() {
-                                return e.c.autoMoveSpeed = 10;
-                            });
-                            // ANDROID PATCH END
-
-                            if (!this.c.touchEnabled) {
-                                this.dom.cursor.dataset.cursor = "pointer";
-                            }
+                            this.resize = this.resize.bind(this), this.scroll = this.scroll.bind(this), this.mouseDown = this.mouseDown.bind(this), this.mouseUp = this.mouseUp.bind(this), this.openContact = this.openContact.bind(this), this.moveToStart = this.moveToStart.bind(this), window.addEventListener("resize", this.resize, !1), this.renderer.domElement.addEventListener("mousedown", this.mouseDown, !1), this.renderer.domElement.addEventListener("mouseup", this.mouseUp, !1), this.renderer.domElement.addEventListener("wheel", this.scroll, !1), this.gyroEnabled && (this.updateOrientation = this.updateOrientation.bind(this), this.resetOrientation = this.resetOrientation.bind(this), window.addEventListener("deviceorientation", this.updateOrientation), this.dom.compass.addEventListener("click", this.resetOrientation, !1)), this.enableLoader && document.querySelector(".enter").addEventListener("click", this.moveToStart, !1), this.gesture = new K(this.renderer.domElement, {
+                                mouseSupport: !1
+                            }), this.gesture.on("panmove", function() {
+                                e.c.scrollPos += 6 * -e.gesture.velocityY, e.c.scrolling = !0
+                            }), this.gesture.on("panend", function() {
+                                return e.c.autoMoveSpeed = 0
+                            }), this.gesture.on("longpress", function() {
+                                return e.c.autoMoveSpeed = 10
+                            }), this.c.touchEnabled || (this.dom.cursor.dataset.cursor = "pointer")
                         }
                     }, {
                         key: "initCursorListeners",
