@@ -288,22 +288,22 @@
                     for (let o = 0; o < this.handlers[e].length; o++) this.handlers[e][o](t)
                 }
                 onTouchStart(e) {
-                    this.thresholdX = this.opts.threshold("x", this), this.thresholdY = this.opts.threshold("y", this), this.disregardVelocityThresholdX = this.opts.disregardVelocityThreshold("x", this), this.disregardVelocityThresholdY = this.opts.disregardVelocityThreshold("y", this), this.touchStartX = "mousedown" === e.type ? e.screenX : e.changedTouches[0].screenX, this.touchStartY = "mousedown" === e.type ? e.screenY : e.changedTouches[0].screenY, this.touchMoveX = null, this.touchMoveY = null, this.touchEndX = null, this.touchEndY = null, this.longPressTimer = setTimeout(() => this.fire("longpress", e), this.opts.longPressTime), this.fire("panstart", e)
+                    this.thresholdX = this.opts.threshold("x", this), this.thresholdY = this.opts.threshold("y", this), this.disregardVelocityThresholdX = this.opts.disregardVelocityThreshold("x", this), this.disregardVelocityThresholdY = this.opts.disregardVelocityThreshold("y", this), this.touchStartX = "mousedown" === e.type ? e.clientX : e.changedTouches[0].clientX, this.touchStartY = "mousedown" === e.type ? e.clientY : e.changedTouches[0].clientY, this.touchMoveX = null, this.touchMoveY = null, this.touchEndX = null, this.touchEndY = null, this.longPressTimer = setTimeout(() => this.fire("longpress", e), this.opts.longPressTime), this.fire("panstart", e)
                 }
                 onTouchMove(e) {
                     if ("mousemove" !== e.type || this.touchStartX && null === this.touchEndX) {
-                        const t = ("mousemove" === e.type ? e.screenX : e.changedTouches[0].screenX) - this.touchStartX;
+                        const t = ("mousemove" === e.type ? e.clientX : e.changedTouches[0].clientX) - this.touchStartX;
                         this.velocityX = t - this.touchMoveX, this.touchMoveX = t;
-                        const o = ("mousemove" === e.type ? e.screenY : e.changedTouches[0].screenY) - this.touchStartY;
+                        const o = ("mousemove" === e.type ? e.clientY : e.changedTouches[0].clientY) - this.touchStartY;
                         this.velocityY = o - this.touchMoveY, this.touchMoveY = o;
                         const i = j(this.touchMoveX),
                             n = j(this.touchMoveY);
-                        this.swipingHorizontal = i > this.thresholdX, this.swipingVertical = n > this.thresholdY, this.swipingDirection = i > n ? this.swipingHorizontal ? "horizontal" : "pre-horizontal" : this.swipingVertical ? "vertical" : "pre-vertical", O(i, n) > this.opts.pressThreshold && clearTimeout(this.longPressTimer), this.fire("panmove", e)
+                        this.swipingHorizontal = i > this.thresholdX, this.swipingVertical = n > this.thresholdY, this.swipingDirection = i > n ? this.swipingHorizontal ? "horizontal" : "pre-horizontal" : this.swipingVertical ? "vertical" : "pre-vertical", O(i, n) > this.opts.pressThreshold && clearTimeout(this.longPressTimer), e.cancelable && e.preventDefault(), this.fire("panmove", e)
                     }
                 }
                 onTouchEnd(e) {
                     if ("mouseup" !== e.type || this.touchStartX && null === this.touchEndX) {
-                        this.touchEndX = "mouseup" === e.type ? e.screenX : e.changedTouches[0].screenX, this.touchEndY = "mouseup" === e.type ? e.screenY : e.changedTouches[0].screenY, this.fire("panend", e), clearTimeout(this.longPressTimer);
+                        this.touchEndX = "mouseup" === e.type ? e.clientX : e.changedTouches[0].clientX, this.touchEndY = "mouseup" === e.type ? e.clientY : e.changedTouches[0].clientY, this.fire("panend", e), clearTimeout(this.longPressTimer);
                         const t = this.touchEndX - this.touchStartX,
                             o = j(t),
                             i = this.touchEndY - this.touchStartY,
@@ -314,25 +314,16 @@
             }
             K.defaults = {
                 threshold: (e) => O(25, z(.15 * ("x" === e ? window.innerWidth || document.body.clientWidth : window.innerHeight || document.body.clientHeight))),
-                velocityThreshold: 10,
+                velocityThreshold: 5,
                 disregardVelocityThreshold: (e, t) => z(.5 * ("x" === e ? t.element.clientWidth : t.element.clientHeight)),
-                pressThreshold: 8,
+                pressThreshold: 5,
                 diagonalSwipes: !1,
                 diagonalLimit: Math.tan(45 * 1.5 / 180 * P),
-                longPressTime: 500,
-                doubleTapTime: 300,
+                longPressTime: 400,
+                doubleTapTime: 250,
                 mouseSupport: !0
             };
-            let Q = !1;
-            try {
-                window.addEventListener("test", null, Object.defineProperty({}, "passive", {
-                    get: function() {
-                        Q = {
-                            passive: !0
-                        }
-                    }
-                }))
-            } catch (e) {}
+            let Q = { passive: false };
             var Z = o("xC2a"),
                 $ = o("EpSA"),
                 ee = o("e/Nn"),

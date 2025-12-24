@@ -211,13 +211,8 @@
               if (srcEl) {
                 srcEl.src = './images/backgroundvertical.mp4';
                 vid.load();
-                // trigger play after first user touch
-                document.addEventListener('touchstart', function once() {
-                  if (vid) {
-                    vid.play().catch(()=>{});
-                  }
-                  document.removeEventListener('touchstart', once);
-                });
+                // try to play (will succeed after user gesture on some browsers)
+                try { var p = vid.play(); if (p && p.then) p.catch(function(){}); } catch (e) {}
               }
             }
           } catch (err) {}
@@ -285,8 +280,11 @@
     </div>
   </div>
 
-  <script src="./js/main.dev.js"></script>
+  <script type="module" src="./js/main.dev.js"></script>
   <script src="./js/runtime.js"></script>
+  <script src="./js/three.js"></script>
+  <script src="./js/gsap.js"></script>
+  <script src="./js/main.app.js"></script>
   <style>
     /* Responsive tweaks for the Y definition panel text */
     @media (max-width: 768px) {
@@ -362,10 +360,8 @@
 
     window.onIconClick = function() {
       // Simulate scroll down to advance to next page/section
-      window.scrollBy({
-        top: window.innerHeight * 0.9,
-        behavior: 'smooth'
-      });
+      const event = new WheelEvent('wheel', { deltaY: 200 });
+      document.dispatchEvent(event);
     };
     window.toggleBobbing = function() {
       // Toggle bobbing on the center icon if present
@@ -386,15 +382,10 @@
       if (indulgeRing) indulgeRing.style.display = 'none';
       if (cursorEl) cursorEl.style.display = 'none';
 
-      const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-      if (isTouch) {
-        document.body.classList.add('touch-device');
-      }
-
       const showIndulgeAndCursor = () => {
         if (indulgeRing) indulgeRing.style.display = 'block';
         indulgeBtn.style.display = 'flex';
-        if (cursorEl && !isTouch) cursorEl.style.display = 'block';
+        if (cursorEl) cursorEl.style.display = 'block';
       };
 
       const checkAndToggle = () => {
@@ -451,7 +442,8 @@
       febImage.style.display = 'none';
 
       const update = (month) => {
-        setMonthClass(month);
+        document.body.classList.remove('month-feb','month-apr','month-may','month-jun','month-mar','month-intro','month-jan','month-end');
+        if (month) document.body.classList.add('month-' + month);
         const cursorImg = document.querySelector('.cursor .pointer img');
         if (cursorImg) {
           if (month === 'apr' || month === 'may' || month === 'jun') {
@@ -495,7 +487,8 @@
       aprImage.style.display = 'none';
 
       const update = (month) => {
-        setMonthClass(month);
+        document.body.classList.remove('month-feb','month-apr','month-may','month-jun','month-mar','month-intro','month-jan','month-end');
+        if (month) document.body.classList.add('month-' + month);
         const cursorImg = document.querySelector('.cursor .pointer img');
         if (cursorImg) {
           if (month === 'apr' || month === 'may' || month === 'jun') {
@@ -537,7 +530,8 @@
       marImage.style.display = 'none';
 
       const update = (month) => {
-        setMonthClass(month);
+        document.body.classList.remove('month-feb','month-apr','month-may','month-jun','month-mar','month-intro','month-jan','month-end');
+        if (month) document.body.classList.add('month-' + month);
         const cursorImg = document.querySelector('.cursor .pointer img');
         if (cursorImg) {
           if (month === 'apr' || month === 'may' || month === 'jun') {
@@ -581,7 +575,8 @@
       mayGallery.style.display = 'none';
 
       const update = (month) => {
-        setMonthClass(month);
+        document.body.classList.remove('month-feb','month-apr','month-may','month-jun','month-mar','month-intro','month-jan','month-end');
+        if (month) document.body.classList.add('month-' + month);
         const cursorImg = document.querySelector('.cursor .pointer img');
         if (cursorImg) {
           if (month === 'apr' || month === 'may' || month === 'jun') {
@@ -619,7 +614,171 @@
         }
       };
 
+      // JS — Automatically Detect Center Shape + infinite loop setup
+      const list = document.getElementById("cutsShapeList");
+      const label = document.querySelector("#mayCutsSlider .shape-name");
 
+      // initial items (will be replaced after cloning)
+      let items = Array.from(list.children);
+
+      // ---- INFINITE SETUP ----
+      const CLONE_COUNT = items.length;
+
+      // Clone items at end
+      items.forEach(item => {
+        const clone = item.cloneNode(true);
+        clone.classList.add("clone");
+        list.appendChild(clone);
+      });
+
+      // Clone items at start
+      items.forEach(item => {
+        const clone = item.cloneNode(true);
+        clone.classList.add("clone");
+        list.insertBefore(clone, list.firstChild);
+      });
+
+      // Re-collect items (includes clones)
+      items = Array.from(list.children);
+
+      function forceDefaultActive(name) {
+        items.forEach(i => i.classList.remove("active"));
+        const target = items.find(item => {
+          const img = item.querySelector("img");
+          return img && img.alt === name;
+        });
+        if (target) target.classList.add("active");
+      }
+
+      function updateActiveShape() {
+        if (!hasLockedDefault) return;
+
+        const center = window.innerWidth / 2;
+        let closest = null;
+        let closestDist = Infinity;
+
+        items.forEach((item) => {
+          const rect = item.getBoundingClientRect();
+          const itemCenter = rect.left + rect.width / 2;
+          const dist = Math.abs(center - itemCenter);
+          item.classList.remove("active");
+          if (dist < closestDist) {
+            closestDist = dist;
+            closest = item;
+          }
+        });
+
+        if (closest) {
+          closest.classList.add("active");
+          const img = closest.querySelector("img");
+          if (img && label) label.innerText = img.alt;
+        }
+      }
+
+      // Set initial scroll position (middle set of originals)
+      let isAdjusting = false;
+
+      function setInitialPosition() {
+        // ensure no smooth scroll while positioning to avoid visible anim
+        const prev = list.style.scrollBehavior;
+        list.style.scrollBehavior = 'auto';
+        requestAnimationFrame(() => {
+          if (!items || !items[0]) return;
+          const styles = window.getComputedStyle(list);
+          const gap = parseInt(styles.gap || styles.columnGap || '40', 10) || 40;
+          const itemWidth = items[0].offsetWidth + gap;
+          isAdjusting = true;
+          list.scrollLeft = itemWidth * CLONE_COUNT;
+          // small delay to allow layout to settle before re-enabling handlers
+          setTimeout(() => {
+            isAdjusting = false;
+            list.style.scrollBehavior = prev || '';
+            requestAnimationFrame(updateActiveShape);
+          }, 50);
+        });
+      }
+
+      setInitialPosition();
+
+      list.addEventListener("scroll", () => {
+        if (isAdjusting) return; 
+        const itemWidth = items[0].offsetWidth + 20;
+        const maxScroll = itemWidth * CLONE_COUNT;
+        const minScroll = itemWidth;
+
+        if (list.scrollLeft <= minScroll) {
+          isAdjusting = true;
+          const prev = list.style.scrollBehavior;
+          list.style.scrollBehavior = 'auto';
+          list.scrollLeft += maxScroll;
+          setTimeout(() => { list.style.scrollBehavior = prev || ''; isAdjusting = false; requestAnimationFrame(updateActiveShape); }, 40);
+          return;
+        } else if (list.scrollLeft >= maxScroll * 2) {
+          isAdjusting = true;
+          const prev = list.style.scrollBehavior;
+          list.style.scrollBehavior = 'auto';
+          list.scrollLeft -= maxScroll;
+          setTimeout(() => { list.style.scrollBehavior = prev || ''; isAdjusting = false; requestAnimationFrame(updateActiveShape); }, 40);
+          return;
+        }
+
+        requestAnimationFrame(updateActiveShape);
+      }, { passive: true });
+
+      const leftArrow = document.getElementById("cutsLeftArrow");
+      const rightArrow = document.getElementById("cutsRightArrow");
+      const step = () => Math.max(200, Math.floor(list.clientWidth * 0.35));
+
+      function centerItemByAlt(name) {
+        const candidates = items.filter(item => {
+          const img = item.querySelector('img');
+          return img && img.alt && img.alt.toUpperCase() === name.toUpperCase();
+        });
+        if (!candidates.length) return;
+        // choose the candidate currently closest to the center for minimal movement
+        const listRect = list.getBoundingClientRect();
+        const centerX = listRect.left + listRect.width / 2;
+        let target = candidates[0];
+        let best = Infinity;
+        candidates.forEach(item => {
+          const r = item.getBoundingClientRect();
+          const c = r.left + r.width / 2;
+          const d = Math.abs(c - centerX);
+          if (d < best) { best = d; target = item; }
+        });
+        let attempts = 0;
+        const prev = list.style.scrollBehavior;
+        list.style.scrollBehavior = 'auto';
+        function step() {
+          const rect = target.getBoundingClientRect();
+          const delta = (rect.left + rect.width / 2) - centerX;
+          if (Math.abs(delta) > 2 && attempts < 12) {
+            list.scrollLeft += delta;
+            attempts++;
+            requestAnimationFrame(step);
+          } else {
+            list.style.scrollBehavior = prev || '';
+            requestAnimationFrame(updateActiveShape);
+          }
+        }
+        step();
+      }
+
+      if (leftArrow) {
+        leftArrow.addEventListener("click", (e) => {
+          e.preventDefault(); e.stopPropagation();
+          list.scrollLeft -= step();
+          requestAnimationFrame(updateActiveShape);
+        });
+      }
+
+      if (rightArrow) {
+        rightArrow.addEventListener("click", (e) => {
+          e.preventDefault(); e.stopPropagation();
+          list.scrollLeft += step();
+          requestAnimationFrame(updateActiveShape);
+        });
+      }
 
       // listen for the custom event dispatched by the timeline bundle
       document.addEventListener('timeline:activeMonthChanged', (ev) => {
@@ -746,6 +905,19 @@
       }, 200);
     })();
   </script>
+  <script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const btn = document.querySelector('.indulge-btn');
+    if (!btn) return;
+
+    btn.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      handleGoBeyond();
+    }, { passive: false });
+
+    btn.addEventListener('click', handleGoBeyond);
+  });
+</script>
   <script>
     // Show the jun top right image only for jun month.
     (function() {
@@ -908,26 +1080,25 @@
       }
 
       const update = (month) => {
-        setMonthClass(month);
-
+        document.body.classList.remove('month-feb','month-apr','month-may','month-jun','month-mar','month-intro','month-jan','month-end');
+        if (month) document.body.classList.add('month-' + month);
+        
         const cursorImg = document.querySelector('.cursor .pointer img');
         if (cursorImg) {
           cursorImg.src = (month === 'apr' || month === 'may' || month === 'jun') ? './assets/apr/yeol.png' : './images/y.png';
         }
-
+        
         const instaImg = document.querySelector('.insta-icon img');
         if (instaImg) {
           instaImg.src = (month === 'apr' || month === 'may' || month === 'jun') ? './assets/apr/insta.png' : './images/insta-icon.png';
         }
-
+        
         if (!month) return mayGallery.style.display = 'none';
-
+        
         if (month === 'may') {
           mayGallery.style.display = 'block';
           setTimeout(() => {
-            if (!cutsSwiper && mayGallery.offsetParent !== null) {
-              initSwiper();
-            }
+            initSwiper();
             if (cutsSwiper) cutsSwiper.update();
           }, 100);
         } else {
@@ -1002,11 +1173,8 @@
         febText.style.display = show ? 'block' : 'none';
       }
 
-      // Check position periodically with requestAnimationFrame
-      (function loop(){
-        checkPosition();
-        requestAnimationFrame(loop);
-      })();
+      // Check position periodically
+      setInterval(checkPosition, 100);
     })();
   </script>
   <script>
