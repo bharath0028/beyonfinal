@@ -359,9 +359,17 @@
     })();
 
     window.onIconClick = function() {
-      // Simulate scroll down to advance to next page/section
-      const event = new WheelEvent('wheel', { deltaY: 200 });
-      document.dispatchEvent(event);
+      try {
+        if (/Android/i.test(navigator.userAgent) && window.timeline) {
+          // Directly advance the timeline on Android
+          window.timeline.c.scrollPos += 600;
+          window.timeline.c.scrolling = true;
+        } else {
+          // Desktop / iOS
+          const event = new WheelEvent('wheel', { deltaY: 200 });
+          document.dispatchEvent(event);
+        }
+      } catch (e) {}
     };
     window.toggleBobbing = function() {
       // Toggle bobbing on the center icon if present
@@ -408,6 +416,24 @@
         }
       }, 5000);
     });
+  </script>
+  <script>
+    // Force entry on Android after a user interaction so intro can't get stuck
+    (function() {
+      if (!/Android/i.test(navigator.userAgent)) return;
+
+      let forced = false;
+      function forceEnter() {
+        if (forced) return;
+        forced = true;
+        try {
+          handleGoBeyond();
+        } catch (e) {}
+      }
+
+      document.addEventListener('touchstart', forceEnter, { once: true });
+      document.addEventListener('pointerdown', forceEnter, { once: true });
+    })();
   </script>
   <script>
     // Show the bottom intro image only for jan and feb months.
