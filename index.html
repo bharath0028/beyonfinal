@@ -11,24 +11,23 @@
 <body>
   <main>
     <div class="bottom-text">
-      <img
-        class="center-icon bobbing"
-        src="./assets/intro/icon.png"
-        alt="Icon"
+      <button
+        class="center-icon bobbing scroll-main cursor-eye"
+        aria-label="Scroll"
+        title="Scroll"
         onclick="onIconClick(); toggleBobbing();"
         style="--icon-size: 53px;"
-        title="Next"
-      />
+      >SCROLL</button>
     </div>
     <div class="edge-text left-edge"><span>FREEDOM LOOKS GOOD ON YOU</span></div>
-    <div class="edge-text right-edge"><span>LAB - GROWN DIAMONDS</span></div>
+    <div class="edge-text right-edge"><span>LAB-GROWN DIAMONDS</span></div>
 
     <div class="feb-top-right-image">
       <img src="./assets/feb/beyon.png" alt="Beyon Feb" />
     </div>
 
     <div class="apr-top-right-image">
-      <img src="./assets/apr/beyoneol.png" alt="Beyon Apr" />
+      <img src="./assets/apr/beyoneol white.png" alt="Beyon Apr" />
     </div>
 
     <div class="mar-top-right-image">
@@ -36,11 +35,11 @@
     </div>
 
     <div class="may-top-right-image">
-      <img src="./assets/may/beyoneol.png" alt="Beyon May" />
+      <img src="./assets/may/beyoneol white 2.png" alt="Beyon May" />
     </div>
 
     <div class="jun-top-right-image">
-      <img src="./assets/jun/beyoneol.png" alt="Beyon Jun" />
+      <img src="./assets/jun/beyoneol White 3.png" alt="Beyon Jun" />
     </div>
 
     <!-- Shop Beyon CTA (controlled by JS) -->
@@ -50,7 +49,7 @@
 
     <div class="insta-icon">
       <a href="https://instagram.com/beyon" target="_blank" rel="noopener noreferrer" class="cursor-eye">
-        <img src="./images/insta-icon.png" alt="Instagram" />
+        <img src="./assets/apr/insta White.png" alt="Instagram" />
       </a>
     </div>
 
@@ -112,6 +111,11 @@
               <img src="./assets/may/cuts/Halfmoon.png" alt="HALF MOON" />
             </a>
           </div>
+          <div class="swiper-slide shape-item" data-name="OVAL">
+            <a href="#" class="shape-link" data-href="#">
+              <img src="./assets/may/cuts/Oval.png" alt="OVAL" />
+            </a>
+          </div>
           <div class="swiper-slide shape-item" data-name="ROUND">
             <a href="#" class="shape-link" data-href="#">
               <img src="./assets/may/cuts/Round.png" alt="ROUND" />
@@ -122,19 +126,14 @@
               <img src="./assets/may/cuts/Kite.png" alt="KITE" />
             </a>
           </div>
-          <div class="swiper-slide shape-item" data-name="TRILLION">
-            <a href="#" class="shape-link" data-href="#">
-              <img src="./assets/may/cuts/Trillion.png" alt="TRILLION" />
-            </a>
-          </div>
-          <div class="swiper-slide shape-item" data-name="OVAL">
-            <a href="#" class="shape-link" data-href="#">
-              <img src="./assets/may/cuts/Oval.png" alt="OVAL" />
-            </a>
-          </div>
           <div class="swiper-slide shape-item" data-name="MARQUISE">
             <a href="#" class="shape-link" data-href="#">
               <img src="./assets/may/cuts/Marquise.png" alt="MARQUISE" />
+            </a>
+          </div>
+          <div class="swiper-slide shape-item" data-name="TRILLION">
+            <a href="#" class="shape-link" data-href="#">
+              <img src="./assets/may/cuts/Trillion.png" alt="TRILLION" />
             </a>
           </div>
         </div>
@@ -149,41 +148,43 @@
       </a>
     </div>
 
-    <img
-      class="bottom-center-icon cursor-eye"
-      src="./images/icon.png"
-      alt="Next"
-      title="Next"
+    <button
+      class="bottom-center-icon cursor-eye scroll-text"
+      aria-label="Scroll"
+      title="Scroll"
       onclick="onIconClick()"
-    />
-    <img
-      class="bottom-center-icon2 cursor-eye"
-      src="./images/icon2.png"
-      alt="Next"
-      title="Next"
+    >
+      SCROLL
+    </button>
+    <button
+      class="bottom-center-icon2 cursor-eye scroll-text2"
+      aria-label="Scroll"
+      title="Scroll"
       onclick="onIconClick()"
-    />
+    >
+      SCROLL
+    </button>
 
     <section class="end-cta" id="endCta">
       <img src="./assets/end/end.png" alt="End" class="end-heading" />
       <div class="end-cards">
         <a href="#find-store" class="end-card cursor-eye">
           <img class="end-card-img" src="./assets/end/find a store.png" alt="Find a store" />
-          <img class="end-card-btn end-find-btn" src="./assets/end/find.png" alt="Find a store" data-hover="./assets/end/findhov.png" data-active="./assets/end/findcli.png" />
+          <img class="end-card-btn end-find-btn" src="./assets/end/find.png" alt="Find a store" data-active="./assets/end/findcli.png" />
         </a>
         <a href="#shop-online" class="end-card cursor-eye">
           <img class="end-card-img" src="./assets/end/shop online.png" alt="Shop online" />
-          <img class="end-card-btn end-shop-btn" src="./assets/end/online.png" alt="Shop online" data-hover="./assets/end/onlinehov.png" data-active="./assets/end/onlinecli.png" />
+          <img class="end-card-btn end-shop-btn" src="./assets/end/online.png" alt="Shop online" data-active="./assets/end/onlinecli.png" />
         </a>
         <a href="#meet-social" class="end-card cursor-eye">
           <img class="end-card-img" src="./assets/end/social.png" alt="Meet us on social" />
-          <img class="end-card-btn end-meet-btn" src="./assets/end/meet.png" alt="Meet us on social" data-hover="./assets/end/meethov.png" data-active="./assets/end/meetcli.png" />
+          <img class="end-card-btn end-meet-btn" src="./assets/end/meet.png" alt="Meet us on social" data-active="./assets/end/meetcli.png" />
         </a>
       </div>
     </section>
   </main>
 
-  <div id="feb-center-text" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); font-size:40px; color:#c8102e; font-family:'Geom_Regular','Futura',sans-serif; z-index:100; text-align:center;"> ...TO THE MOMENT WHEN YOU'RE MOST YOURSELF </div>
+  <div id="feb-center-text" class="ios-center" style="display:none; font-size:40px; color:#c8102e; font-family:'Geom_Regular','Futura',sans-serif; z-index:100; text-align:center;"> ...TO THE MOMENT WHEN YOU'RE MOST YOURSELF </div>
 
   <div class="loading">
     <video
@@ -228,9 +229,9 @@
         <div class="indulge-wrap">
         <div class="progress-percent" style="display:none">0%</div>
         <img class="indulge-ring" src="./images/intro-load.png" alt="Ring" />
-        <button onclick="handleGoBeyond()" class="enter cursor-eye indulge-btn">
+        <a id="indulgeLink" href="#" class="enter cursor-eye indulge-btn" role="button">
           <img src="./images/indulge.png" alt="Indulge" class="cta-text" />
-        </button>
+        </a>
       </div>
     </div>
 
@@ -280,7 +281,34 @@
     </div>
   </div>
 
-  <script type="module" src="./js/main.dev.js"></script>
+  <!-- iOS WebGL unlock script - must run before any WebGL/timeline code -->
+  <script>
+  (function unlockIOS() {
+    let unlocked = false;
+
+    function unlock() {
+      if (unlocked) return;
+      unlocked = true;
+
+      // unlock all pending videos (Three.js textures)
+      if (window._beyonPendingVideos) {
+        window._beyonPendingVideos.forEach(v => {
+          try {
+            v.muted = true;
+            v.play();
+          } catch (e) {}
+        });
+      }
+
+      // tell timeline it's allowed to move
+      document.body.classList.add('ios-unlocked');
+    }
+
+    document.addEventListener('touchstart', unlock, { passive: false });
+  })();
+  </script>
+
+  <!-- removed: <script type="module" src="./js/main.dev.js"></script> -->
   <script src="./js/runtime.js"></script>
   <script src="./js/three.js"></script>
   <script src="./js/gsap.js"></script>
@@ -358,10 +386,14 @@
       closeBtn && closeBtn.addEventListener('click', () => setVisible(false));
     })();
 
-    window.onIconClick = function() {
-      // Simulate scroll down to advance to next page/section
-      const event = new WheelEvent('wheel', { deltaY: 200 });
-      document.dispatchEvent(event);
+    window.onIconClick = function () {
+      if (!window.timeline || !window.timeline.gesture) return;
+
+      // simulate a real swipe for iOS
+      window.timeline.gesture.fire('swipeup', {
+        type: 'swipeup',
+        velocityY: -20
+      });
     };
     window.toggleBobbing = function() {
       // Toggle bobbing on the center icon if present
@@ -388,6 +420,15 @@
         if (cursorEl) cursorEl.style.display = 'block';
       };
 
+      // attach click listener to the anchor (replaces inline onclick)
+      try {
+        indulgeBtn.addEventListener && indulgeBtn.addEventListener('click', function (e) {
+          e.preventDefault();
+          try { document.body.classList.add('ready'); console.log('all assets loaded'); } catch (err) {}
+          console.log('clicked');
+        });
+      } catch (e) {}
+
       const checkAndToggle = () => {
         const text = (progressEl.textContent || '').trim();
         const num = parseInt(text, 10);
@@ -402,13 +443,13 @@
       setTimeout(checkAndToggle, 50);
       setTimeout(() => {
         if (!document.body.classList.contains('ready')) {
-          handleGoBeyond();
+          try { document.body.classList.add('ready'); console.log('all assets loaded'); } catch (err) {}
           // ensure ring, button and cursor are visible when fallback triggers
           showIndulgeAndCursor();
         }
       }, 5000);
 
-      // Attach pointer handler to the background video for clicks
+      // Attach click and touch handlers to the background video for iOS compatibility
       (function () {
         const video = document.querySelector('.loading-bg-video');
         if (!video) return;
@@ -420,16 +461,15 @@
 
           advanced = true;
 
-          try {
-            handleGoBeyond();
-          } catch (err) {}
+          try { document.body.classList.add('ready'); console.log('all assets loaded'); } catch (err) {}
 
           e.preventDefault();
           e.stopPropagation();
         }
 
-        // pointerdown = instant + mobile-safe
-        video.addEventListener('pointerdown', advance, { passive: false });
+        // Add both click and touchstart for iOS compatibility
+        video.addEventListener('click', advance);
+        video.addEventListener('touchstart', advance, { passive: false });
       })();
     });
   </script>
@@ -479,7 +519,7 @@
         const instaImg = document.querySelector('.insta-icon img');
         if (instaImg) {
           if (month === 'apr' || month === 'may' || month === 'jun') {
-            instaImg.src = './assets/apr/insta.png';
+            instaImg.src = './assets/apr/insta White.png';
           } else {
             instaImg.src = './images/insta-icon.png';
           }
@@ -524,7 +564,7 @@
         const instaImg = document.querySelector('.insta-icon img');
         if (instaImg) {
           if (month === 'apr' || month === 'may' || month === 'jun') {
-            instaImg.src = './assets/apr/insta.png';
+            instaImg.src = './assets/apr/insta White.png';
           } else {
             instaImg.src = './images/insta-icon.png';
           }
@@ -567,7 +607,7 @@
         const instaImg = document.querySelector('.insta-icon img');
         if (instaImg) {
           if (month === 'apr' || month === 'may' || month === 'jun') {
-            instaImg.src = './assets/apr/insta.png';
+            instaImg.src = './assets/apr/insta White.png';
           } else {
             instaImg.src = './images/insta-icon.png';
           }
@@ -612,7 +652,7 @@
         const instaImg = document.querySelector('.insta-icon img');
         if (instaImg) {
           if (month === 'apr' || month === 'may' || month === 'jun') {
-            instaImg.src = './assets/apr/insta.png';
+            instaImg.src = './assets/apr/insta White.png';
           } else {
             instaImg.src = './images/insta-icon.png';
           }
@@ -976,7 +1016,7 @@
           junTextButton.style.visibility = 'visible';
           setTimeout(() => {
             junTextButton.style.opacity = '1';
-          }, 4000);
+          }, 6000);
         } else {
           junTextButton.style.display = 'none';
           junTextButton.style.opacity = '0';
@@ -1080,7 +1120,7 @@
             const allSlides = Array.from(swiper.slides || []);
             allSlides.forEach(s => s.classList && s.classList.remove('small-center'));
             // For certain shapes, keep them visually smaller when centered
-            const smallShapes = ['TAPPER','BAGUTTE','BAGUETTE','HALF MOON','HALF-MOON','KITE','OVAL','MARQUISE'];
+            const smallShapes = ['TAPPER','BAGUTTE','BAGUETTE','HALF MOON','HALF-MOON','KITE','OVAL','MARQUISE','PEAR','RADIANT','HEXAGON'];
             if (smallShapes.indexOf(name) >= 0) {
               activeSlide.classList.add('small-center');
             }
@@ -1101,17 +1141,18 @@
         
         const instaImg = document.querySelector('.insta-icon img');
         if (instaImg) {
-          instaImg.src = (month === 'apr' || month === 'may' || month === 'jun') ? './assets/apr/insta.png' : './images/insta-icon.png';
+          instaImg.src = (month === 'apr' || month === 'may' || month === 'jun') ? './assets/apr/insta White.png' : './images/insta-icon.png';
         }
         
         if (!month) return mayGallery.style.display = 'none';
         
         if (month === 'may') {
           mayGallery.style.display = 'block';
+          // delay initialization slightly so surrounding animations complete first
           setTimeout(() => {
             initSwiper();
             if (cutsSwiper) cutsSwiper.update();
-          }, 100);
+          }, 1600);
         } else {
           mayGallery.style.display = 'none';
         }
@@ -1166,7 +1207,7 @@
     // Fallback to force loading completion if assets fail to load in file:// protocol
     setTimeout(() => {
       if (!document.body.classList.contains('ready')) {
-        handleGoBeyond();
+        try { document.body.classList.add('ready'); console.log('all assets loaded'); } catch (err) {}
       }
     }, 3000);
   </script>

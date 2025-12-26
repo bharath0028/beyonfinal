@@ -65,11 +65,9 @@ html {
 
 html,
 body {
-  /* Force a fixed, full-viewport body so background is always covered */
-  position: fixed;
-  inset: 0;
-  width: 100vw;
-  height: 100vh;
+  /* iOS-safe: only desktop gets fixed body */
+  width: 100%;
+  height: 100%;
   margin: 0;
   padding: 0;
   box-sizing: border-box;
@@ -81,6 +79,17 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
   overflow: hidden; /* prevent scrollbars on body */
+}
+
+/* ONLY desktop gets fixed body - iOS Safari needs normal positioning for touch events */
+@media (hover: hover) and (pointer: fine) {
+  html,
+  body {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+  }
 }
 
 /* Remove solid background/tint on small screens so video can fill fullscreen */
@@ -97,7 +106,25 @@ body {
   }
   .loading-bg-video {
     background: transparent !important;
+    pointer-events: auto;
+    touch-action: manipulation;
   }
+}
+
+/* iOS-safe centering - replaces position: fixed + transform centering */
+.ios-center {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: none !important;
+}
+
+/* Disable momentum scroll interference */
+html, body {
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: auto;
 }
 
 /* Edge Texts - Left and Right */
@@ -305,6 +332,29 @@ body.ready .insta-icon {
   animation: bob 2s ease-in-out infinite;
 }
 
+/* Center icon SCROLL text variant */
+.bottom-text .center-icon.scroll-main {
+  width: auto;
+  min-width: 88px;
+  padding: 6px 14px;
+  background: transparent;
+  border: none;
+  color: #D30B39;
+  font-family: 'Geom Medium_Regular', 'Futura Md BT Medium', Futura, Arial, sans-serif;
+  font-size: 18px;
+  letter-spacing: 2px;
+  font-weight: 700;
+  cursor: pointer;
+  pointer-events: auto;
+  z-index: 4;
+}
+
+.bottom-text .center-icon.scroll-main.bobbing { animation: bob 2s ease-in-out infinite; }
+
+@media (max-width: 900px) {
+  .bottom-text .center-icon.scroll-main { min-width: 64px; font-size: 14px; }
+}
+
 .bottom-center-icon {
   position: fixed;
   left: 50%;
@@ -342,6 +392,44 @@ body.ready .insta-icon {
 @media (max-width: 900px) {
   .bottom-center-icon { width: 34px; bottom: 24px; }
   .bottom-center-icon2 { width: 34px; bottom: 24px; }
+}
+
+/* SCROLL text variant for the bottom center control */
+.bottom-center-icon.scroll-text {
+  width: auto;
+  min-width: 80px;
+  padding: 6px 12px;
+  background: transparent;
+  border: none;
+  color: #D30B39;
+  font-family: 'Geom Medium_Regular', 'Futura Md BT Medium', Futura, Arial, sans-serif;
+  font-size: 18px;
+  letter-spacing: 2px;
+  font-weight: 700;
+  bottom: 12px;
+}
+
+@media (max-width: 900px) {
+  .bottom-center-icon.scroll-text { min-width: 64px; font-size: 14px; bottom: 20px; }
+}
+
+/* SCROLL text variant for the second bottom center control (dark gray) */
+.bottom-center-icon2.scroll-text2 {
+  width: auto;
+  min-width: 80px;
+  padding: 6px 12px;
+  background: transparent;
+  border: none;
+  color: #2c2c2c;
+  font-family: 'Geom Medium_Regular', 'Futura Md BT Medium', Futura, Arial, sans-serif;
+  font-size: 18px;
+  letter-spacing: 2px;
+  font-weight: 700;
+  bottom: 12px;
+}
+
+@media (max-width: 900px) {
+  .bottom-center-icon2.scroll-text2 { min-width: 64px; font-size: 14px; bottom: 20px; }
 }
 
 .bottom-text p {
@@ -428,6 +516,20 @@ body.ready .insta-icon {
   z-index: 1;
   pointer-events: auto;
   cursor: pointer;
+}
+
+/* Ensure the insta icon shown on the loading screen uses the light artwork
+   (so it appears in the #efeae3 tone) regardless of later script src changes. */
+.loading .insta-icon a img { display: none !important; }
+.loading .insta-icon a {
+  display: inline-block;
+  width: 68px;
+  height: 28px;
+  background-image: url('../assets/apr/insta White.png');
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: contain;
+  pointer-events: auto;
 }
 
 .welcome {
@@ -520,10 +622,10 @@ body.ready .insta-icon {
 
 .indulge-wrap .indulge-btn .cta-text {
   /* remove offset margins so the button is visually centered */
-  height: 26px;
+  height: 33px;
   margin: 0;
   display: block;
-  margin-left: 11px;
+  margin-left: 12px;
 }
 
 /* place progress percent centered inside the ring */
@@ -747,7 +849,8 @@ body.ready .mar-top-right-image {
 body.ready .shape-slider {
   visibility: visible;
   pointer-events: auto;
-  animation: shapeFadeIn 0.6s ease 0.8s forwards; /* delay 0.8s before fade-in */
+  /* increase delay so the swiper initializes after other page transitions */
+  animation: shapeFadeIn 0.6s ease 2s forwards; /* delay 2s before fade-in */
 }
 
 /* ----- SWIPER STYLES ----- */
@@ -755,6 +858,7 @@ body.ready .shape-slider {
   width: 100%;
   padding: 20px 0;
   overflow: visible;
+  margin-top: 30px;
 }
 
 .cuts-swiper .swiper-wrapper {
@@ -762,28 +866,47 @@ body.ready .shape-slider {
 }
 
 .cuts-swiper .swiper-slide.shape-item {
-  width: 100px !important;
+  width: 140px !important;
   height: auto;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: transform 0.4s ease, opacity 0.4s ease;
-  transform: scale(0.7);
-  opacity: 0.4;
+  transition: transform 0.35s cubic-bezier(.2,.9,.2,1), opacity 0.35s ease;
+  transform: scale(0.9);
+  opacity: 0.6;
+  transform-origin: center center;
 }
 
 .cuts-swiper .swiper-slide.shape-item img {
-  width: 85%;
+  width: 100%;
   height: auto;
-  margin-top: 65px;
-  max-width: 100px;
+  margin-top: 28px;
+  max-width: 80px;
   display: block;
 }
 
 .cuts-swiper .swiper-slide-active.shape-item {
-  transform: scale(1.4);
+  transform: scale(2.2);
   opacity: 1;
-  z-index: 20; /* bring the active slide above neighbours so it isn't visually cut */
+  z-index: 30; /* bring the active slide above neighbours so it isn't visually cut */
+}
+
+/* Centered slide: fine-tune vertical padding so tall/narrow shapes sit visually centred
+   without affecting the neighbour slides. Use a dedicated padding rule so designers
+   can tweak only the active slide appearance. */
+.cuts-swiper .swiper-slide-active.shape-item img {
+  margin-top: 0; /* remove default top offset for active item */
+  padding-bottom: 2px; /* give a little breathing room under the centered graphic */
+  max-height: 220px; /* cap tall shapes so they don't visually overflow */
+  transition: margin-top 0.25s ease, transform 0.25s ease;
+}
+
+/* When the centered slide is flagged as 'small-center' keep a small top offset so
+   it sits slightly lower and matches visual rhythm with other shapes */
+.cuts-swiper .swiper-slide-active.shape-item.small-center img {
+  margin-top: 12px;
+  padding-bottom: 6px;
+  max-height: 190px;
 }
 
 /* Keep certain shapes smaller when centered to avoid visual clipping */
@@ -800,8 +923,8 @@ body.ready .shape-slider {
 
 .cuts-swiper .swiper-slide-prev.shape-item,
 .cuts-swiper .swiper-slide-next.shape-item {
-  transform: scale(0.9);
-  opacity: 0.6;
+  transform: scale(1.0);
+  opacity: 0.8;
 }
 
 .shape-slider .swiper-button-prev,
@@ -809,7 +932,7 @@ body.ready .shape-slider {
   position: absolute;
   top: 70%;
   transform: translateY(-50%);
-  width: 50px;
+  width: 0px;
   height: 50px;
   color: #EFEAE3;
   z-index: 10;
@@ -849,12 +972,12 @@ body.ready .shape-slider {
 /* ----- SHAPES ROW ----- */
 .shape-list {
   display: flex;
-  gap: 20px;
+  gap: 28px;
   align-items: center;
   scroll-behavior: smooth;
   overflow-x: auto;
   overflow-y: hidden;
-  padding: 0 120px;
+  padding: 0 80px;
   width: 100%;
   flex-wrap: nowrap;
   user-select: none;
@@ -869,10 +992,10 @@ body.ready .shape-slider {
 /* EACH SHAPE */
 .shape-item {
   flex-shrink: 0;
-  transition: transform 0.6s ease, opacity 0.6s ease;
-  transform: scale(0.6);
-  opacity: 0.4;
-  flex: 0 0 200px;
+  transition: transform 0.45s cubic-bezier(.2,.9,.2,1), opacity 0.45s ease;
+  transform: scale(0.9);
+  opacity: 0.7;
+  flex: 0 0 220px;
 }
 
 .shape-item img {
@@ -884,6 +1007,7 @@ body.ready .shape-slider {
 .shape-item.active {
   transform: scale(1.4);
   opacity: 1;
+  z-index: 25;
 }
 
 /* ----- SHAPE NAME ----- */
@@ -891,7 +1015,7 @@ body.ready .shape-slider {
   text-align: center;
   color: #eae0d2;
   font-size: 22px;
-  margin-top: -1px;
+  margin-top: 8px;
   letter-spacing: 2px;
   font-family: 'Geom Medium_Regular', 'Geom_Regular', 'Montserrat', sans-serif;
   font-weight: 700;

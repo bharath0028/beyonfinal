@@ -575,11 +575,11 @@
                                     scaleFactor = 0.9;
                                 }
                                 // reduce beyondiamond sizes so they sit comfortably in the layout
-                                if (-1 !== this.texture.name.indexOf("beyondiamond.mp4")) {
-                                    scaleFactor = 1.9;
+                                if (-1 !== this.texture.name.indexOf("beyondiamond 2.mp4")) {
+                                    scaleFactor = 2.0;
                                 }
-                                if (-1 !== this.texture.name.indexOf("beyondiamond2.jpg")) {
-                                    scaleFactor = 1.1;
+                                if (-1 !== this.texture.name.indexOf("beyondiamond 3.jpg")) {
+                                    scaleFactor = 1.4;
                                 }
                                 if (-1 !== this.texture.name.indexOf("beyondiamond1.jpg")) {
                                     scaleFactor = 0.6;
@@ -693,17 +693,17 @@
                                     zPos -= 1000;
                                     // removed zPos override to keep original spacing
                                 }
-                                if (-1 !== this.texture.name.indexOf("beyondiamond.mp4")) {
+                                if (-1 !== this.texture.name.indexOf("beyondiamond 2.mp4")) {
                                     // place beyondiamond at the top-left of the JUN heading
-                                    o.x = 650; // left
-                                    o.y = 350;  // top
+                                    o.x = 150; // left
+                                    o.y = 150;  // top
                                     // nudge this item slightly forward (closer to camera)
-                                    zPos -= 1200;
+                                    zPos -= 1300;
                                 }
-                                if (-1 !== this.texture.name.indexOf("beyondiamond2.jpg")) {
+                                if (-1 !== this.texture.name.indexOf("beyondiamond 3.jpg")) {
                                     // place beyondiamond2 at the bottom-left of the JUN heading
-                                    o.x = -550; // left
-                                    o.y = -250; // bottom
+                                    o.x = -350; // left
+                                    o.y = +250; // bottom
                                     zPos -= 1100;
                                     // removed zPos override to keep original spacing
                                 }
@@ -1098,7 +1098,7 @@
                     feb: [ "momkidsqaure.mp4", "oldcouple.mp4", "yourhands.png", "party.mp4", "MOMENT.png", "first.jpg", "y.png"],
                     apr: [ "ring.jpg", "ear.jpg", "neckwear.jpg", "bracelet.jpg", "pendants.jpg", "all.jpg"],
                     may: [],
-                    jun: ["beyondiamond1.jpg", "beyondiamond2.jpg", "beyondiamond.mp4"],
+                    jun: ["beyondiamond1.jpg", "beyondiamond 3.jpg", "beyondiamond 2.mp4"],
               },
                 be = {
                     jan: {
@@ -1167,11 +1167,11 @@
                             caption: "Jack Harvatt joined our design team",
                             link: ""
                         },
-                        "beyondiamond2.jpg": {
+                        "beyondiamond 3.jpg": {
                             caption: "Jake came on board as a back-end developer",
                             link: ""
                         },
-                        "beyondiamond.mp4": {
+                        "beyondiamond 2.mp4": {
                             caption: "Close up of the Jekka bottle for 6 O'Clock Gin",
                             link: ""
                         }
@@ -1632,6 +1632,18 @@
                             if (!this.itemAnimating && this.itemOpen) {
                                 // remember the opened item's month so we can restore heading visibility
                                 var _openedMonth = this.itemOpen.month;
+                                // keep a reference to the item we're about to close so we can restore its caption
+                                var _closingItem = this.itemOpen;
+                                // Make caption visible immediately to avoid long fade-in delay
+                                try {
+                                    if (this.captionTextMat) {
+                                        this.captionTextMat.visible = true;
+                                        this.captionTextMat.opacity = 1;
+                                    }
+                                    if (this.itemOpen && this.itemOpen.caption) {
+                                        this.itemOpen.caption.visible = true;
+                                    }
+                                } catch (showErr) {}
                                 if (this.itemAnimating = !0, this.dom.cursor.dataset.cursor = "pointer", this.c.isMobile) {
                                     var t = this.itemOpen.mesh.material.uniforms.texture.value;
                                     "video" === t.mediaType && (t.image.pause(), t.image.src = "", t.image.load())
@@ -1644,11 +1656,27 @@
                                         z: this.origTimelinePos,
                                         ease: "Expo.easeInOut",
                                         onComplete: function() {
-                                            try {
-                                                if (e.sections[_openedMonth] && e.sections[_openedMonth].headingMesh) e.sections[_openedMonth].headingMesh.visible = true;
-                                            } catch (restoreErr) {}
-                                            e.c.allowScrolling = !0, e.itemOpen = !1, e.itemAnimating = !1
-                                        }
+                                                    try {
+                                                        if (e.sections[_openedMonth] && e.sections[_openedMonth].headingMesh) e.sections[_openedMonth].headingMesh.visible = true;
+                                                    } catch (restoreErr) {}
+                                                    // restore page scrolling state and mark closed
+                                                    e.c.allowScrolling = !0, e.itemOpen = !1, e.itemAnimating = !1;
+                                                    // ensure the closed item's own caption (3D mesh) is visible again
+                                                    try {
+                                                        if (_closingItem && _closingItem.caption) _closingItem.caption.visible = true;
+                                                    } catch (captionErr) {}
+                                                    // restore the caption material visibility and opacity so captions reappear immediately
+                                                    try {
+                                                        if (e.captionTextMat) {
+                                                            e.captionTextMat.visible = true;
+                                                            e.captionTextMat.opacity = 1;
+                                                        }
+                                                        if (e.linkUnderlineMat) {
+                                                            e.linkUnderlineMat.visible = false;
+                                                            e.linkUnderlineMat.opacity = 0;
+                                                        }
+                                                    } catch (matErr) {}
+                                                }
                                     }), J.a.to(this.itemOpen.uniforms.progress, 1.5, {
                                         value: 0,
                                         ease: "Expo.easeInOut"
@@ -1753,6 +1781,10 @@
 
                             if (this.intersects.length > 0) {
                                 var hitParent = this.intersects[0].object.parent;
+                                // Prevent opening videos and images on mobile devices
+                                if (this.c.isMobile) {
+                                    return; // Skip all click handling on mobile
+                                }
                                 // Prevent opening MOMENT.png and yourhands.png via click
                                 if (!(hitParent && hitParent.texture && hitParent.texture.name && (hitParent.texture.name.indexOf("MOMENT.png") !== -1 || hitParent.texture.name.indexOf("yourhands.png") !== -1))) {
                                     this.openItem(hitParent);
